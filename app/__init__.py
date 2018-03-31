@@ -5,7 +5,7 @@ def create_app():
     app = Flask (__name__)
 
     books = {}
-    users = []
+    users = {}
 
     @app.route('/api/v1/books', methods=['POST', 'GET'])
     def save_book():
@@ -29,7 +29,7 @@ def create_app():
             book = books[int(book_id)]
             print("retrieved book", books[int(book_id)])
             return Response(json.dumps({'book': book}), status=200, mimetype='application/json')
-        return Response(json.dumps({'message': 'Invalid book Id'}), status=404, mimetype='application/json')
+        # return Response(json.dumps({'message': 'Invalid book Id'}), status=404, mimetype='application/json')
 
         #This request method allows you to update a particluar book
         if request.method == 'PUT':
@@ -44,6 +44,8 @@ def create_app():
             
         #This request method allows you to delete a particluar book
         if request.method=='DELETE':
+            print("DELETE", books, book_id)
+
             book = books[int(book_id)]
             if book:
                 del books[int(book_id)]
@@ -71,24 +73,27 @@ def create_app():
         if request.method=='POST':
             email = request.json.get('email')
             passwd = request.json.get('passwd')
-            confirm_passwd = request.json.get('confirm_passwd')
             current_users = len(users)
-            users.append({'email': email,'logged_in':False}) 
+            users[current_users +1]=({'email': email,'passwd':passwd, 'logged_in':True}) 
+            if len(users["email"])==0:
+                print ("Unaccepted. Please enter your email")           
             return Response(json.dumps({'message': 'User registration successful!'}), status=201, mimetype='application/json')
         else:
-                return Response(json.dumps({'message': 'User registration unsuccessful!'}), status=404, mimetype='application/json')
-    @app.route('/api/auth/login', methods=['POST'])
+            return Response(json.dumps({'message': 'User registration unsuccessful!'}), status=404, mimetype='application/json')
+    @app.route('/api/v1/auth/login', methods=['POST'])
     def user_login():
-        if request.method =='POST':
-            user_email = request.json.get('email')
-            user_passwd = request.json.get('passwd')
-            if user_email == 'email' and user_passwd == 'passwd':
-                session['logged_in'] = True
-            else:
-                flash('You have keyed in a wrong email or password!')
-                return user_login() 
-    @app.route('/api/auth/reset-password', methods=['POST'])
-    def passwd_reset():
+        if request.method=='POST':
+            email=request.json.get('email')
+            passwd=request.json.get('passwd')
+            print(users)
+            for user_id in users:
+                user = users[user_id] 
+                if user["email"]==email:
+                    if user["passwd"]==passwd:
+                        return Response(json.dumps({'message':'Login Successful'}))
+            return Response(json.dumps({'message':'Login Unsuccesful'}))
+    @app.route('/api/v1/auth/reset-password', methods=['POST'])
+    def passwd_reset(user_id):
         user_email = request.json.get('email')
         new_passwd = request.json.get('new_passwd')
         user = users[int(user_id)]
@@ -99,9 +104,10 @@ def create_app():
                 return Response(json.dumps({'message': 'User does not exist'}), status=404, mimetype='application/json') 
 
 
-    @app.route('/api/auth/logout', methods=['POST'])
+    @app.route('/api/v1/auth/logout', methods=['POST'])
     def user_logout():
         session['logged_in']= False
+        return Response(json.dumps({'message':'You are logged out'}))
 
 
     

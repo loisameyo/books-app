@@ -3,4 +3,5 @@ from app import create_app
 app = create_app()
 
 if __name__=='__main__':
-    app.run()
+    app.secret_key = 'super secret key'
+    app.run(debug=True)
