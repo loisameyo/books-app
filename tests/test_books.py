@@ -1,12 +1,11 @@
 import unittest
-from app import create_app
-
+from app import app
 
 # from library import app
 
 class BookTests(unittest.TestCase):
     def setUp(self):
-        self.app = create_app()
+        self.app = app()
         self.test_client= self.app.test_client()
 
     def tearDown(self):
