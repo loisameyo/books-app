@@ -54,7 +54,7 @@ def create_app():
                 return Response(json.dumps({'message': 'Invalid book Id'}), status=404, mimetype='application/json') 
             
     #This method allows the user to borrow a book
-    @app.route('/api/v1/users/books/<book_id>', methods=['GET'])
+    @app.route('/api/v1/users/books/<book_id>', methods=['POST'])
     def borrow_book(book_id):
         retrieved_book_info = books[int(book_id)]
         if retrieved_book_info['borrowed']:
@@ -75,8 +75,8 @@ def create_app():
             passwd = request.json.get('passwd')
             current_users = len(users)
             users[current_users +1]=({'email': email,'passwd':passwd, 'logged_in':True}) 
-            if len(users["email"])==0:
-                print ("Unaccepted. Please enter your email")           
+            if email in [None, ""]:
+                return ("Unaccepted. Please enter your email")           
             return Response(json.dumps({'message': 'User registration successful!'}), status=201, mimetype='application/json')
         else:
             return Response(json.dumps({'message': 'User registration unsuccessful!'}), status=404, mimetype='application/json')
@@ -93,23 +93,26 @@ def create_app():
                         return Response(json.dumps({'message':'Login Successful'}))
             return Response(json.dumps({'message':'Login Unsuccesful'}))
     @app.route('/api/v1/auth/reset-password', methods=['POST'])
-    def passwd_reset(user_id):
-        user_email = request.json.get('email')
-        new_passwd = request.json.get('new_passwd')
-        user = users[int(user_id)]
-        if user:
-                users[int(user_id)] = {'email': user_email, 'new_passwd': new_passwd}
-                return Response(json.dumps({'message':'Password reset successfully'}), status=200, mimetype='application/json')
+    def passwd_reset():
+        if request.method=='POST':
+            user_email = request.json.get('email')
+            new_passwd = request.json.get('new_passwd')
+            for user in users:
+                if user['email'] == user_email:
+                    break
+                    if user:
+                        user['passwd'] = new_passwd
+            return Response(json.dumps({'message':'Password reset successfully'}), status=201, mimetype='application/json')
         else:
-                return Response(json.dumps({'message': 'User does not exist'}), status=404, mimetype='application/json') 
-
+            return Response(json.dumps({'message': 'User does not exist'}), status=404, mimetype='application/json')  
 
     @app.route('/api/v1/auth/logout', methods=['POST'])
     def user_logout():
-        session['logged_in']= False
-        return Response(json.dumps({'message':'You are logged out'}))
-
-
-    
+        if session.get('logged_in'):
+            session['logged_in']= False
+            return Response(json.dumps({'message':'You are logged out'}),status=201, mimetype='application/json')
+        else:
+            return 'You are not logged in'
+       
 
     return app
