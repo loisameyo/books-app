@@ -1,14 +1,12 @@
-# import sys, os
 import unittest
-# sys.path.append("..")
 from flask import json
-from app.__init__ import create_app
+from app.__init__ import app
 
 # from library import app
 
 class BookTests(unittest.TestCase):
     def setUp(self):
-        self.app = create_app()
+        self.app = app()
         # self.app.config["JSONIFY_PRETTYPRINT_REGULAR"] = False
         self.test_client= self.app.test_client()
 
