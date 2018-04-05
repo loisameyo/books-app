@@ -29,7 +29,7 @@ class Books():
             "author": self.author,
             "publication year": self.year,
             "Book status": self.status,
-            "Book count": self.count,
+            "Book count": self.count
         }
       
 
