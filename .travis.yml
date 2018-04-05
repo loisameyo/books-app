@@ -3,8 +3,26 @@ python:
   - "3.6"
 install:
   - pip install -r requirements.txt
-  pip install coveralls
+  - pip install coveralls
+  - pip install codecov
 
-script: nosetests --with-coverage
+notifications:
+  -webhook from coveralls (its a link)
 
-after_success: pip  coveralls
+script: 
+  - nosetests --with-coverage --cover-pack
+  - coverage report -m
+  
+
+after_success: 
+  - coveralls
+  - codecov
+
+every test passing
+run with pytest, nosetests, locally
+push
+
+pull pr to see codecov
+
+create a coveralls account and link to travis and github
+get coveralls token and add it my 

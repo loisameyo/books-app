@@ -120,8 +120,8 @@ def user_register():
 
         new_user = Users(email, password)
         users.append(new_user)
-        return jsonify(new_user.serialize)
-        #Response(json.dumps({'message': 'User Registration succesful!'}), status=201, content_type='application/json')      
+        #return jsonify(new_user.serialize)
+        return Response(json.dumps({'message': 'User Registration succesful!'}), status=201, content_type='application/json')      
 
 
 @app.route('/api/v1/auth/login', methods=['POST'])
@@ -132,7 +132,7 @@ def user_login():
         for user in users:
             if user.email == email:
                 if user.password == password:
-                    return Response(json.dumps({'message': 'Login Successful'}))
+                    return Response(json.dumps({'message': 'Login succesful!'}), status=201, content_type='application/json')
                     break
     return Response(json.dumps({'message': 'Login Unsuccesful. Non-existing user'}))
 

@@ -1,8 +1,12 @@
 [
+  "tests/test_books.py::BookTests::test_borrowing_book",
   "tests/test_books.py::BookTests::test_creating_book",
   "tests/test_books.py::BookTests::test_creating_user",
   "tests/test_books.py::BookTests::test_deleting_book",
-  "tests/test_books.py::BookTests::test_getting_book",
+  "tests/test_books.py::BookTests::test_getting_all_books",
+  "tests/test_books.py::BookTests::test_getting_one_book",
   "tests/test_books.py::BookTests::test_loggin_user",
+  "tests/test_books.py::BookTests::test_loggout_user",
+  "tests/test_books.py::BookTests::test_reset_password",
   "tests/test_books.py::BookTests::test_updating_book"
 ]
