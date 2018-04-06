@@ -29,7 +29,6 @@ class BookTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         #self.assertIn(1, (response.data))
 
-
     def test_deleting_book(self):
         response = self.test_client.post('/api/v1/books', data=json.dumps({'name': 'Beginning Javascript', 'author': 'M Madam', \
         'pub_year':'2015'}), content_type='application/json')

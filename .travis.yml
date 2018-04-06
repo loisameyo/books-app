@@ -10,7 +10,7 @@ notifications:
   -webhook from coveralls (its a link)
 
 script: 
-  - nosetests --with-coverage --cover-pack
+  - nosetests --with-coverage --cover-package = run, app, tests
   - coverage report -m
   
 

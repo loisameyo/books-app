@@ -4,16 +4,19 @@ from flask import json, jsonify
 import sys
 sys.path.append('..')
 from app import app
+from app.models import Books, Users
 
 
 
-class ModelsTests(unittest.TestCase):
+class ModelsTestCase(unittest.TestCase):
     def setUp(self):
-        self.app = app
-        self.test_client= self.app.test_client()
+        self.test_client= app
 
     def tearDown(self):
         pass
-def test_models_returns_error_message_if_both_args_not_not_strings(self):
-        pass
- 
+
+    def test_sub_class(self):
+        self.assertFalse(issubclass(Users, Books), msg='Not True subclass of Users Class.')
+
+
+  

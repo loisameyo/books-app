@@ -1,7 +1,8 @@
-from flask import request, Response, json, session, jsonify
-#from flask_jwt_extended import (JWTManager, jwt_required, create_access_token, get_jwt_identity)
+from flask import Flask, request, Response, json, session, jsonify
+
 from app import app
 from .models import Books, Users
+
 books = []
 users = []
 
@@ -149,9 +150,7 @@ def passwd_reset():
                 if user:
                     user.password = new_password
         return Response(json.dumps({'message': 'Password reset successfully'}), status=201, content_type='application/json')
-        # else user does not exist
-
-
+        
 @app.route('/api/v1/auth/logout', methods=['POST'])
 def user_logout():
     """This method allows a person who is logged in to log out"""
@@ -160,6 +159,4 @@ def user_logout():
         return Response(json.dumps({'message': 'You are logged out'}), status=201, content_type='application/json')
     else:
         return 'You are not logged in'
-
-
-
+    return jsonify({'message': 'You are now logged out'}), 200
