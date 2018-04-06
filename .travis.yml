@@ -7,7 +7,7 @@ install:
   - pip install codecov
 
 notifications:
-  -webhook from coveralls (its a link)
+  webhooks: https://coveralls.io/webhook?repo_token=B5WcLFBsh1blwvKHipdeekzC1JxR1qhCo
 
 script: 
   - nosetests --with-coverage --cover-package = run, app, tests
@@ -18,11 +18,3 @@ after_success:
   - coveralls
   - codecov
 
-every test passing
-run with pytest, nosetests, locally
-push
-
-pull pr to see codecov
-
-create a coveralls account and link to travis and github
-get coveralls token and add it my 
