@@ -10,7 +10,7 @@ notifications:
   webhooks: https://coveralls.io/webhook?repo_token=B5WcLFBsh1blwvKHipdeekzC1JxR1qhCo
 
 script: 
-  - nosetests --with-coverage --cover-package = run, app, tests
+  - nosetests --with-coverage --cover-package=run,app,tests
   - coverage report -m
   
 

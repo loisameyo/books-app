@@ -46,7 +46,8 @@ def access_book(book_id):
     if request.method == 'GET':
         for book in books:
             if book.id == book_id:
-                return Response(json.dumps(book.serialize), status=200, content_type='application/json')
+                return Response(json.dumps(book.serialize
+                ), status=200, content_type='application/json')
                 
         return Response(json.dumps({"Message": "No book with that Id"}), status=200, content_type='application/json')
         
@@ -133,6 +134,7 @@ def user_login():
         for user in users:
             if user.email == email:
                 if user.password == password:
+                    session[email] = True
                     return Response(json.dumps({'message': 'Login succesful!'}), status=201, content_type='application/json')
                     break
     return Response(json.dumps({'message': 'Login Unsuccesful. Non-existing user'}))
@@ -154,9 +156,10 @@ def passwd_reset():
 @app.route('/api/v1/auth/logout', methods=['POST'])
 def user_logout():
     """This method allows a person who is logged in to log out"""
-    if session.get('logged_in'):
-        session['logged_in'] = False
-        return Response(json.dumps({'message': 'You are logged out'}), status=201, content_type='application/json')
+    email = request.json.get('email')
+    if session.get(email):
+        session[email] = False
+        return Response(json.dumps({'message': 'You are logged out'}), status=200, content_type='application/json')
     else:
         return 'You are not logged in'
-    return jsonify({'message': 'You are now logged out'}), 200
+   
