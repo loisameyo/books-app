@@ -34,7 +34,7 @@ def add_book():
         """A user can view all books available"""
     elif request.method == 'GET':
         if len(books) == 0:
-            return Response(json.dumps({'message': 'No books available'}), status=204, content_type='application/json')
+            return Response(json.dumps({'message': 'No books available to display'}), status=200, content_type='application/json')
         return jsonify(book=[item.serialize for item in books])
 
 
@@ -60,19 +60,19 @@ def access_book(book_id):
                     new_book_name = book.name
                     
                 if request.json['author'] or request.json['author'] != "":
-                     new_author = request.json['author']
+                        new_author = request.json['author']
                 else:
                     new_author = book.author
-           
+            
                 if request.json['pub_year'] or request.json['pub_year'] != "":
                         new_pub_year = request.json['pub_year']
                 else:
                     new_pub_year = book.year
-
                 book.name = new_book_name
                 book.author = new_author
-                book.pub_year = new_pub_year
+                book.year = new_pub_year
                 return Response(json.dumps({'message': 'Updated Successfully'}), status=200, content_type='application/json')
+            return Response(json.dumps({'message': 'Invalid Book ID'}), status=200, content_type='application/json')
 
 
     """This request method allows you to delete a retrieved book"""
@@ -81,7 +81,7 @@ def access_book(book_id):
             if book.id == book_id:
                 print(book_id)
                 books.remove(book)
-            return Response(json.dumps({'message': 'Deleted Successfully'}), status=204, content_type='application/json')
+            return Response(json.dumps({'message': 'Deleted Successfully'}), status=200, content_type='application/json')
         else:
             return Response(json.dumps({'message': 'Invalid book Id'}), status=404, content_type='application/json')
 

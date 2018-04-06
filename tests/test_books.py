@@ -9,7 +9,6 @@ from app import app
 class BookTests(unittest.TestCase):
     def setUp(self):
         self.app = app
-        # self.app.config["JSONIFY_PRETTYPRINT_REGULAR"] = False
         self.test_client= self.app.test_client()
 
     def tearDown(self):
@@ -28,6 +27,7 @@ class BookTests(unittest.TestCase):
     def test_getting_one_book(self):
         response = self.test_client.get('/api/v1/books/1')
         self.assertEqual(response.status_code, 200)
+        #self.assertIn(1, (response.data))
 
 
     def test_deleting_book(self):
@@ -35,7 +35,7 @@ class BookTests(unittest.TestCase):
         'pub_year':'2015'}), content_type='application/json')
         self.assertEqual(response.status_code, 201)
         response = self.test_client.delete('/api/v1/books/1')
-        self.assertEqual(response.status_code, 204)
+        self.assertEqual(response.status_code, 200)
 
     def test_updating_book(self):
         response = self.test_client.post('/api/v1/books', data=json.dumps({'name': 'Beginning French', 'author': 'S Gitau', \
@@ -43,7 +43,7 @@ class BookTests(unittest.TestCase):
         self.assertEqual(response.status_code, 202)
         response = self.test_client.put('/api/v1/books/1', data=json.dumps({'name': 'Beginning French', 'author': 'J kennedy', \
          'pub_year':'2000'}), content_type='application/json')
-        self.assertEqual(response.status_code, 500) #because currently not able to post to book ID 1
+        self.assertEqual(response.status_code, 200)
     
     def test_borrowing_book(self):
          response = self.test_client.post('/api/v1/books', data=json.dumps({'name': 'Beginning French', 'author': 'S Gitau', \
