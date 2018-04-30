@@ -1,0 +1,20 @@
+language: python
+python:
+  - "3.6"
+install:
+  - pip install -r requirements.txt
+  - pip install coveralls
+  - pip install codecov
+
+notifications:
+  webhooks: https://coveralls.io/webhook?repo_token=B5WcLFBsh1blwvKHipdeekzC1JxR1qhCo
+
+script: 
+  - nosetests --with-coverage --cover-package=run,app,tests
+  - coverage report -m
+  
+
+after_success: 
+  - coveralls
+  - codecov
+
