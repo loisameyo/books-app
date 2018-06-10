@@ -1,9 +1,9 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-#from app import views
+# from app.views import views
+# from app.auth.auth import auth
 
-db = SQLAlchemy()
-app = Flask (__name__)
+app = Flask(__name__)
 
 POSTGRES = {
     'user':'postgres',
@@ -18,11 +18,9 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://%(user)s:\
 app.url_map.strict_slashes = False
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = 'secret'
+db = SQLAlchemy(app)
 
-db.init_app(app)
+# db.init_app(app)
 
-from app import views
-from app.auth.auth import auth
-
-if __name__ == '__main__':
-    app.run()
+# if __name__ == '__main__':
+#     app.run()
