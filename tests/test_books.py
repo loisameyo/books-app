@@ -9,8 +9,10 @@ from app import app
 
 class BookTests(unittest.TestCase):
     def setUp(self):
-        self.app = app
-        self.test_client= self.app.test_client()
+        """Initialize and define variables for testing."""
+        config_name = 'testing'
+        self.app = create_app(config_name)
+        self.client = self.app.test_client()
 
     def tearDown(self):
         pass

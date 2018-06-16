@@ -1,8 +1,10 @@
 from flask import Flask
 from werkzeug.security import check_password_hash, generate_password_hash
-from flask_sqlalchemy import SQLAlchemy
-import datetime
-from datetime import timedelta
+# from flask_sqlalchemy import SQLAlchemy 
+# from flask_migrate import migrate
+# from sqlalchemy.orm import backref
+from datetime import datetime, timedelta
+
 
 from app import db
 
@@ -34,16 +36,36 @@ class MainModel(db.Model):
             for column, value in self.__to__dict().items()
         }
 
+    def save(self):
+
+        db.session.add(self)
+        db.session.commit()
+    
+    @classmethod
+    def get_all(cls):
+        return cls.query.all()
+
+    @classmethod
+    def get_record(cls, **kwargs):
+        cls.query.filter_by(**kwargs).first()
 
 class UsersTable(MainModel, db.Model):
     """This is a model for the users table"""
     __tablename__ = 'users'
 
     user_id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(12), unique=True, nullable=False)
+    username = db.Column(db.String(12),unique=False, nullable=False)
     usermail = db.Column(db.String(30), unique=True, nullable=False)
-    passwd_hash = db. Column(db.String(30))
+    passwd_hash = db.Column(db.String(500))
     is_admin = db.Column(db.Boolean, default=False)
+    logged_in = db.Column(db.Boolean, default = False)
+    
+    user_book_history = db.relationship('BookHistory', backref = 'UsersTable', lazy = True)
+
+    def __init__(self, username, usermail, passwd_hash):
+        self.username = username
+        self.usermail = usermail
+        self.passwd_hash =passwd_hash
 
     def register(self):
         db.session.add(self)
@@ -52,17 +74,22 @@ class UsersTable(MainModel, db.Model):
     def retrieve_all(self):
         return UsersTable.query.all()
 
-    def retrieve_user_by_usermail(self, usermail):
-        return UsersTable.query.filter_by(usermail=usermail).first()  # why not ==
+    @staticmethod
+    def retrieve_user_by_email(usermail):
+        return UsersTable.query.filter_by(usermail=usermail).first()
 
     def hash_user_passwd(self, passwd):
-        """hash a password given by a suser"""
+        """hash a password given by a user"""
         self.passwd_hash = generate_password_hash(passwd)
 
     def verify_passwd(self, passwd):
         """Check if the password given by a user is valid"""
         return check_password_hash(self.passwd_hash, passwd)
-
+    @staticmethod
+    def verify_username (username):
+        if UsersTable.query.filter_by(username=username).count() > 0:
+            return False
+        return True
 
 
 class Library(db.Model):
@@ -74,10 +101,12 @@ class Library(db.Model):
     book_author = db.Column(db.String(30), unique=True, nullable=False)
     publication_year = db.Column(db.Integer)
     is_not_borrowed = db.Column(db.Boolean, default=True)
+    
+    book_history = db.relationship('BookHistory', backref = 'Library', lazy = True)
   
 
-    def save_book(self):
-        db.session.add(self)
+    def save_book_to_db(self):
+        db.session.add()
         db.session.commit()
 
     def retrieve_all_books(self):
@@ -86,7 +115,7 @@ class Library(db.Model):
     def retrieve_book_by_id(self, book_id):
         return Library.query.filter_by(book_id=book_id).first()
 
-    def delete_book(self, bookd_id):
+    def delete_book(self):
         db.session.delete(self)
         db.session.commit()
 
@@ -101,37 +130,41 @@ class Library(db.Model):
         }
 
 
-class UserHistory(MainModel, db.Model):
+class BookHistory(db.Model):
     """This model displays the borrowing history of a user"""
-    __tablename__ = 'user_history'
-    logon_id = db.Column(db.Integer, primary_key=True)
-    book_id = db.Column(db.Integer)
-    book_title = db.Column(db.String(30))
+    __tablename__ = 'book_history'
+
+    session_id = db.Column(db.Integer, primary_key = True)
+    
     username = db.Column(db.String(60))
-    usermail = db.Column(db.String(60))
+    book_title = db.Column(db.String(30))
+    time_borrowed = db.Column(db.DateTime, default=db.func.current_timestamp())
     date_borrowed = db.Column(db.DateTime)
     return_date = db.Column(db.DateTime)
     book_returned = db.Column(db.Boolean, default=False)
+    user_history = db.Column(db.String, db.ForeignKey(UsersTable.usermail))
+    book_history = db.Column(db.Integer, db.ForeignKey(Library.book_id))
 
-    def save_book(self):
+    def save_book_to_db(self):
         db.session.add(self)
         db.session.commit()
 
     def get_user_history(self, usermail):
-        return UserHistory.query.filter_by(usermail=usermail).all()
+        return BookHistory.query.filter_by(usermail=usermail).all()
 
     def get_unreturned_books(self, usermail):
-        return UserHistory.query.filter_by(usermail=usermail, book_returned=False).all()
+        return BookHistory.query.filter_by(usermail=usermail, book_returned=False).all()
 
     def retrieve_book_by_id(self, book_id):
-        return UserHistory.query.filter_by(book_id=book_id, book_returned=False).first()
+        return BookHistory.query.filter_by(book_id=book_id, book_returned=False).first()
 
     @property
     def serialize(self):
-        """ Serialize the class UserHistory when this function is called."""
+        """ Serialize the class BookHistory when this function is called."""
         return{
 
             "Username": self.username,
+            "User Email": self.usermail,
             "Book ID": self.book_id,
             "Book Title": self.book_title,
             "Date Borrowed": self.date_borrowed,
@@ -140,25 +173,32 @@ class UserHistory(MainModel, db.Model):
         }
 
 
-class IssuedTokens(MainModel, db.Model):
+class IssuedTokens(db.Model):
     """This class represents tokens issued table"""
     __tablename__ = 'issued_tokens'
     token_id = db.Column(db.Integer, primary_key=True)
     revoke_time = db.Column(db.DateTime, default=db.func.current_timestamp())
-    jti = db.Column(db.String(200), unique=True)
+    jti = db.Column(db.String(500), unique=True)
+    def __init__(self, jti):
+        self.jti = jti
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
 
     def token_revoke(self):
         db.session.add(self)
         db.session.commit()
 
-    def is_jti_blacklisted(self, jti):  # method should have self as first argument
+    @staticmethod
+    def is_jti_blacklisted(jti):
         query = IssuedTokens.query.filter_by(jti=jti).first()
         if query:
             return True
         return False
 
 
-class ActiveTokens(MainModel, db.Model):
+class ActiveTokens(db.Model):
     """"""
     __tablename__ = 'active_tokens'
     token_id = db.Column(db.Integer, primary_key=True)
@@ -173,14 +213,21 @@ class ActiveTokens(MainModel, db.Model):
 
     def save_issued_token(self):
         db.session.add(self)
-        db.seesion.commit()
+        db.session.commit()
 
     def delete_active_token(self):
         db.session.delete(self)
-        db.session.commit
+        db.session.commit()
 
     def token_is_expired(self):
         return (datetime.now() - self.time_created) > timedelta(minutes=15)
 
-    def find_user_with_issed_token(self, user_usermail):
+    @staticmethod
+    def find_user_with_issued_token(user_usermail):
+        if ActiveTokens.query.filter_by(user_usermail=user_usermail).count() > 0:
+            return False
+        return True
+
+    @staticmethod
+    def get_access_token(user_usermail):
         return ActiveTokens.query.filter_by(user_usermail=user_usermail).first()

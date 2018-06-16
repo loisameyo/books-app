@@ -1,11 +1,11 @@
 from flask import Flask
 from flask import Response, request, json, jsonify, abort
-from datetime import timedelta
+from datetime import datetime, timedelta
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, get_raw_jwt
 
 
 from app import app
-from app.models import UsersTable, Library, UserHistory, ActiveTokens, IssuedTokens
+from .models import UsersTable, Library, BookHistory, ActiveTokens, IssuedTokens
 
 
 @app.route('/api/v2/books', methods=['POST'])
@@ -17,8 +17,8 @@ def post_book():
         year = request.json.get('year')
         new_book = Library(
             book_title=title, book_author=author, publication_year=year)
-        new_book.save_book()
-        return Response(json.dumps({'message': 'Book added successfully {}'.format(title)}), status=200)        
+        new_book.save_book_to_db()
+        return Response(json.dumps({'message': 'You have successfully added the book {} by {} the year {}'.format(title, author, year)}), status=200)        
 
 
 @app.route('/api/v2/books', methods = ['GET'])
@@ -44,11 +44,11 @@ def retrieve_particular_book(book_id):
         else:
             return jsonify(retrieved_book.serialize)
     except ValueError:
-        return Response(json.dumps({'Mesaage': 'Please enter a valid book ID'}), status=404)
+        return Response(json.dumps({'Message': 'Please enter a valid book ID'}), status=404)
 
 
 @app.route('/api/v2/books/<bookId>', methods=['PUT', 'DELETE'])
-@jwt_required
+#@jwt_required
 #@admin_required
 def update_book_details(bookId):
     """This method is for the admin to update details of a book or delete it"""
@@ -58,7 +58,7 @@ def update_book_details(bookId):
         book_to_update = Library.query.filter_by(book_id=bookId).first()
         # Check if the book actually exists in the DB.
         if not book_to_update:
-            return Response(json.dumps({'message': 'This book does not exist in the library.'}), status=204, \
+            return Response(json.dumps({'message': 'This book does not exist in the library.'}), status=200, \
              content_type = 'apllication/json')
         
         elif request.method == 'PUT':
@@ -66,28 +66,20 @@ def update_book_details(bookId):
             author = request.json.get('author')
             year = request.json.get('year')
 
-            if request.json['title'] or request.json['title'] != "" or title.strip() !="":
-                new_title = request.json['title']
-            else:
-                new_title = Library.book_title
-                    
-            if request.json['author'] or request.json['author'] != "" or author.strip() !="":
-                new_author = request.json['author']
-            else:
-                new_author = Library.book_author
-                       
-            if request.json['year'] or request.json['year'] != "" or year.strip() !="":
-                new_year = request.json['year']
-            else:
-                new_year = Library.publication_year
-           
-            book_to_update.save_book()
-            return Response(json.dumps({'message': 'Successfuly updated book details for {}'.format(title)}), status=200,\
+            if title and title.strip() !="":
+                book_to_update.title = title
+            if author and author.strip() !="":
+                book_to_update.author = author
+            if year and year !="":
+                book_to_update.year = year
+         
+            book_to_update.save_book_to_db()
+            return Response(json.dumps({'message': 'Successfuly updated book details: {} by {} year {}'.format(title, author, year)}), status=200,\
              content_type='application/json')
 
         elif request.method == 'DELETE':
             book_to_update.delete_book()
-            return Response(json.dumps({'message': 'You have deleted this book {}'.format(title)}), status=200,\
+            return Response(json.dumps({'message': 'You have deleted this book {}'.format(book_to_update.title)}), status=200,\
              content_type='application/json')
     except ValueError:
         return Response(json.dumps({'message': 'Invalid book ID'}), status=404, content_type='application/json')
@@ -103,7 +95,7 @@ def borrow_book(book_id):
         return Response(json.dumps({'message': 'Enter a valid book ID'}))
     
     usermail = request.json.get('email')
-    if usermail == None or usermail == "" or usermail.strip()!="":
+    if usermail == None or usermail == "" or usermail.strip() =="":
             return Response(json.dumps({'message': 'Invalid. Please enter a vaild email'}))
     else:
         jti = get_raw_jwt()['jti']
@@ -115,35 +107,38 @@ def borrow_book(book_id):
             if not book_details:
                return Response(json.dumps({'message': 'The library has no book with that ID'}))
             else:
+                """processing the borrow request"""
                 if request.method == "POST":
                     if book_details.is_not_borrowed == "False":
                         return Response(json.dumps({'message': 'This book has already been borrowed by another user'}))
                     borrower= UsersTable.get_user_by_email(usermail)
                     return_date = datetime.now() + timedelta(days=7)
-                    book_now_borrowed = UserHistory(usermail=usermail,
+                    book_now_borrowed = BookHistory(usermail=usermail,
                                                 book_id=book_id,
                                                 return_date=return_date)
 
-                    return Response(json.dumps({**{"Message": "Book borrowed successfully"}, **book_details.serialize_history,
-                         **book_now_borrowed.serialize}), status = 204, content_type='application/json')
-                    book_now_borrowed.save_book()
-                    # update books status in library
+                    return Response(json.dumps({**{"Message": "{} You have successfully borrowed a book".format(borrower)}, **book_now_borrowed.serialize}),\
+                     status = 200, content_type='application/json')
+                      
+                    book_now_borrowed.save_book_to_db()
+                    
+                    # update book_is_not_borrowed in the library table in DB
                     book_details.is_not_borrowed = "False"
-                    book_details.save_book()
+                    book_details.save_book_to_db()
 
                 elif request.method == "PUT":
-                    book_to_return = UserHistory.get_book_by_id(book_id)
+                    book_to_return = BookHistory.get_book_by_id(book_id)
                     if book_details.is_not_borrowed == "True":
                         return Response(json.dumps({'Message': 'This book has not been borrowed {}'.format(book_to_return)}), status = 200)
                     
                     # Now let's set the book status to available in book db.
                     book_details.is_not_borrowed = "False"
-                    book_details.save_book()
+                    book_details.save_book_to_db()
 
                     # Set book status & return date in BookHistory db.
                     book_to_return.returned = True
                     book_to_return.return_date = datetime.now()
-                    book_to_return.save_book()
+                    book_to_return.save_book_to_db()
                     return Response(json.dumps({**{"Message": "Book returned successfully"}, **book_details.serialize_history,
                          **book_to_return.serialize}), status = 204, content_type='application/json')
 
@@ -151,27 +146,47 @@ def borrow_book(book_id):
 @jwt_required
 def borrow_history():
     """This method showcases the borrowing history of a user"""
-    usermail = get_jwt_identity()
-    returned = request.args.get('returned')
-    if returned and returned == "false":
-        books_not_returned = UserHistory.get_books_not_returned(usermail)
-        if not books_not_returned:
-            response = jsonify(
-                {"Message": "You do not have a book that is not returned."})
-        else:
-            response = jsonify(
-                History=[{**log.serialize, **log.book.serialize_history}
-                         for log in books_not_returned]
-            )
-    else:
-        books_borrowed = UserHistory.get_user_history(usermail)
-        if not books_borrowed:
-            response = jsonify(
-                {"Message": "You do not have a borrowing history."})
-        else:
-            response = jsonify(
-                books=[{**borrow.serialize, **borrow.book.serialize_history}
-                       for borrow in books_borrowed]
-            )
-    return response
+    # usermail = get_jwt_identity()
+    # returned = request.args.get('returned')
+    # if returned and returned == "false":
+    #     books_not_returned = BookHistory.get_books_not_returned(usermail)
+    #     if not books_not_returned:
+    #         response = jsonify(
+    #             {"Message": "You do not have a book that is not returned."})
+    #     else:
+    #         response = jsonify(
+    #             History=[{**log.serialize, **log.book.serialize_history}
+    #                      for log in books_not_returned]
+    #         )
+    # else:
+    #     books_borrowed = BookHistory.get_user_history(usermail)
+    #     if not books_borrowed:
+    #         response = jsonify(
+    #             {"Message": "You do not have a borrowing history."})
+    #     else:
+    #         response = jsonify(
+    #             books=[{**borrow.serialize, **borrow.book.serialize_history}
+    #                    for borrow in books_borrowed]
+    #         )
+    #  return response
 
+@app.errorhandler(404)
+def route_not_found(error=None):
+        """This method handles a wrong endpoint."""
+        return jsonify({
+            'message': '{} is not a valid url. Please check your spelling'.format(request.url, request.method)
+        }), 404
+
+@app.errorhandler(405)
+def method_not_found(error=None):
+    """This method handles an unallowed endpoint."""
+    return jsonify({
+            'message': 'This method {} is not allowed on this endpoint'.format(request.method)}), 405
+
+
+@app.errorhandler(500)
+def internal_server_error(error=None):
+
+    """This method handles an internal server error"""
+    return jsonify({
+            'message': 'Failed - Internal server error'}), 500
