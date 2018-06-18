@@ -74,7 +74,7 @@ class UsersTable(MainModel, db.Model):
     def retrieve_all(self):
         return UsersTable.query.all()
 
-    @staticmethod
+   
     def retrieve_user_by_email(usermail):
         return UsersTable.query.filter_by(usermail=usermail).first()
 
@@ -92,7 +92,7 @@ class UsersTable(MainModel, db.Model):
         return True
 
 
-class Library(db.Model):
+class BooksTable(db.Model):
     """This is a model for the books table"""
     __tablename__ = 'books'
  
@@ -102,7 +102,7 @@ class Library(db.Model):
     publication_year = db.Column(db.Integer)
     is_not_borrowed = db.Column(db.Boolean, default=True)
     
-    book_history = db.relationship('BookHistory', backref = 'Library', lazy = True)
+    book_history = db.relationship('BookHistory', backref = 'BooksTable', lazy = True)
   
 
     def save_book_to_db(self):
@@ -110,10 +110,10 @@ class Library(db.Model):
         db.session.commit()
 
     def retrieve_all_books(self):
-        return Library.query.all()
+        return BooksTable.query.all()
 
     def retrieve_book_by_id(self, book_id):
-        return Library.query.filter_by(book_id=book_id).first()
+        return BooksTable.query.filter_by(book_id=book_id).first()
 
     def delete_book(self):
         db.session.delete(self)
@@ -143,7 +143,7 @@ class BookHistory(db.Model):
     return_date = db.Column(db.DateTime)
     book_returned = db.Column(db.Boolean, default=False)
     user_history = db.Column(db.String, db.ForeignKey(UsersTable.usermail))
-    book_history = db.Column(db.Integer, db.ForeignKey(Library.book_id))
+    book_history = db.Column(db.Integer, db.ForeignKey(BooksTable.book_id))
 
     def save_book_to_db(self):
         db.session.add(self)
@@ -173,7 +173,7 @@ class BookHistory(db.Model):
         }
 
 
-class IssuedTokens(db.Model):
+class RevokedTokens(db.Model):
     """This class represents tokens issued table"""
     __tablename__ = 'issued_tokens'
     token_id = db.Column(db.Integer, primary_key=True)
@@ -192,7 +192,7 @@ class IssuedTokens(db.Model):
 
     @staticmethod
     def is_jti_blacklisted(jti):
-        query = IssuedTokens.query.filter_by(jti=jti).first()
+        query = RevokedTokens.query.filter_by(jti=jti).first()
         if query:
             return True
         return False
