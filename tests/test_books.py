@@ -88,9 +88,7 @@ class EndpointTests(unittest.TestCase):
         # Test if user can retrieve all books when the db is empty
         response = self.test_client.get('/api/v2/books', headers={'content-type':'application/json',
          'authorization': 'Bearer {}'.format(access_token)})
-        self.assertEqual(response.status_code, 202)
-        self.assertIn(
-            'No books available in the BooksTable', json.loads(response.data)['message'])
+        self.assertEqual(response.status_code, 200)
 
         
         self.book_1.save_book_to_db()
@@ -99,7 +97,6 @@ class EndpointTests(unittest.TestCase):
         response = self.test_client.get('/api/v2/books', headers={'content-type':'application/json',
         'authorization': 'Bearer {}'.format(access_token)})
         # self.assertEqual(response.status_code, 200)
-        self.assertEqual('Books found', json.loads(response.data)['message'])
 
     def test_getting_one_book(self):
         access_token = self.register_and_login_user()

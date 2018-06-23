@@ -11,11 +11,18 @@ from . import book
 def retrieve_all_books():
     """Let's find out all the books in the library"""
     if request.method =="GET":
-        all_books = BooksTable.query.all()
+        all_books = BooksTable.query.paginate()
+        books = all_books.items
+        current_page = all_books.page
+        all_pages = all_books.pages
+        next_page = all_books.next_num
+        prev_page = all_books.prev_num
         if not all_books:
             return Response(json.dumps({'message': 'No books available in the BooksTable'}), \
-            status=202, content_type='application/json')
-        return jsonify({'books':[item.serialize for item in all_books], 'message': 'Books found'}), 200
+            status=404, content_type='application/json')
+        books_retrieved = [item.serialize for item in books]
+        return jsonify({'books': books_retrieved, "current_page": current_page, "all_pages": all_pages, 
+        "next_page": next_page, "previous_page": prev_page}), 200
 
 @book.route('/<book_id>', methods = ['GET'])
 @jwt_required
