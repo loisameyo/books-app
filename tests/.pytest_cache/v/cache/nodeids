@@ -1,13 +1,6 @@
 [
-  "test_books.py::BookTests::test_borrowing_book",
-  "test_books.py::BookTests::test_creating_book",
-  "test_books.py::BookTests::test_creating_user",
-  "test_books.py::BookTests::test_deleting_book",
-  "test_books.py::BookTests::test_getting_all_books",
-  "test_books.py::BookTests::test_getting_one_book",
-  "test_books.py::BookTests::test_loggin_user",
-  "test_books.py::BookTests::test_loggout_user",
-  "test_books.py::BookTests::test_reset_password",
-  "test_books.py::BookTests::test_updating_book",
-  "test_models.py::ModelsTestCase::test_sub_class"
+  "test_auth.py::AuthorizationTests::test_creating_user",
+  "test_auth.py::AuthorizationTests::test_login_user",
+  "test_auth.py::AuthorizationTests::test_reset_password",
+  "test_books.py::EndpointTests::test_admin_adding_book"
 ]

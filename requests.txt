@@ -1,0 +1,37 @@
+User Registration:
+{
+    "name":"Deyo1",
+	"email":"dayo1@gmail.com",
+	"password":"Dayo112345#",
+	"is_admin":"True"
+}
+User Login
+{
+    "email":"dayo1@gmail.com",
+	"password":"Dayo112345#"
+}
+Reset Password
+{
+    "email":"dayo1@gmail.com",
+	"password":"Dayo112367#"  
+}
+
+Add Book 1
+{
+    "title":"Beginning Japanese I",
+    "author":"Nakamura Sensei",
+    "year": 2002
+}
+Add Book 2
+{
+    "title":"Hiphop by Lecrae ",
+    "author":"Lecrae",
+    "year": 2002
+}
+
+Edit a Book
+{
+    "title":"Beginning Japanese II",
+    "author":"Nakamura Sensei",
+    "year": 2003
+}
