@@ -1,0 +1,6 @@
+[
+  "test_auth.py::AuthorizationTests::test_creating_user",
+  "test_auth.py::AuthorizationTests::test_login_user",
+  "test_auth.py::AuthorizationTests::test_reset_password",
+  "test_books.py::EndpointTests::test_admin_adding_book"
+]

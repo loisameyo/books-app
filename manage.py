@@ -1,8 +1,13 @@
+import os
+
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
-from app import app, db, models
+from app import create_app, db, models
 
 """ A file to run database migrations and upgrades"""
+config_name = os.getenv('FLASK_CONFIG')
+app = create_app(config_name)
+
 manager = Manager (app)
 migrate = Migrate (app, db)
 

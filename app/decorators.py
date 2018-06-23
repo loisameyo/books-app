@@ -15,11 +15,12 @@ def admin_required(func):
         logged_in_usermail = get_jwt_identity()
         logged_in_user = UsersTable.retrieve_user_by_email(logged_in_usermail)
         if RevokedTokens.is_jti_blacklisted(jti):
-            return Response(json.dumps({'message':'This token is blacklisted'}), \
-            status = 403 , content_type = 'application/json')
+            return Response(json.dumps({'message':'This token is blacklisted'}), 
+            status = 401 , content_type = 'application/json')
         if not logged_in_user.is_admin:
-            return Response(json.dumps({'message':'Access. You need to be an admin to perform this function'}), \
-            status = 403 , content_type = 'application/json')
+            return Response(json.dumps({
+                'message':'Unauthorized. You need to be an admin to perform this function'}), 
+            status = 401 , content_type = 'application/json')
         return func(*args, **kwargs)
     return validate_admin_and_token
 

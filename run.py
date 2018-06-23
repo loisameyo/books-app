@@ -1,13 +1,13 @@
+import os
 from flask import Flask
 
-from app import app
-from app import views
-from app.auth import auth
+from app import create_app
+# from app import views
+# from app.auth import auth
+
+config_name = os.getenv('FLASK_CONFIG')
+app = create_app(config_name)
 
 
 if __name__=='__main__':
-    app.config ['DEBUG'] = True
-    app.config['SQLALCHEMY_DATABASE_URI']= 'postgresql:///books_api'
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    # # usually the DB_USER://PASSWORD@HOST:PORT/THE DATABASE
     app.run(debug=True)

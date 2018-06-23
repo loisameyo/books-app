@@ -3,32 +3,40 @@ from flask import Response, request, json, jsonify, abort
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import migrate
 from flask_jwt_extended import JWTManager
-from config import Config
+from config import app_config
+from .error_handlers import route_not_found, method_not_found
+from .error_handlers import internal_server_error
+                       
 
-app = Flask(__name__)
+db = SQLAlchemy()
 
+def create_app(config_name):
+    app = Flask(__name__)
+    app.config.from_object(app_config[config_name])
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.secret_key = 'secret'
+    db.init_app(app)
+    app.url_map.strict_slashes = False
+    app.config['JWT_SECRET_KEY'] = 'jwt-token-secret-key'
+    jwt = JWTManager(app)
 
-jwt = JWTManager(app)
-app.secret_key = 'secret'
+    # Register blueprints
+    from app.admin import admin as admin_blueprint
+    app.register_blueprint(admin_blueprint, url_prefix="/api/v2")
 
-app.url_map.strict_slashes = False
+    from app.auth import auth as auth_blueprint
+    app.register_blueprint(auth_blueprint, url_prefix="/api/v2/auth")
 
-POSTGRES = {
-    'user':'postgres',
-    'passwd':'L0C!',
-    'db':'books_api',
-    'host':'localhost',
-    'port':'5432',
-}
+    from app.books import book as book_blueprint
+    app.register_blueprint(book_blueprint, url_prefix="/api/v2/books")
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://%(user)s:\
-%(passwd)s@%(host)s:%(port)s/%(db)s' % POSTGRES
+    from app.user import user as user_blueprint
+    app.register_blueprint(user_blueprint, url_prefix="/api/v2/users")
 
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.register_error_handler(404, route_not_found)
+    app.register_error_handler(405, method_not_found)
+    app.register_error_handler(500, internal_server_error)
+    
+    
 
-app.config['JWT_SECRET_KEY'] = 'jwt-token-secret-key'
-
-
-# Initialize Flask Sql Alchemy
-db = SQLAlchemy(app)
-
+    return app
