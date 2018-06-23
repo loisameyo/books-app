@@ -78,6 +78,12 @@ def borrow_book(book_id):
 @user.route('/books', methods=['GET'])
 @jwt_required
 def borrow_history():
+    user_history = BookHistory.query.paginate()
+    current_page = user_history.page
+    all_pages = user_history.pages
+    next_page = user_history.next_num
+    prev_page = user_history.prev_num
+
     """This method showcases the borrowing history of a user and a user's unreturned books"""
     usermail = get_jwt_identity()
     returned = request.args.get('returned')
@@ -90,7 +96,8 @@ def borrow_history():
              content_type='application/json')
         else:
             results = [item.serialize for item in books_not_returned]
-            return jsonify({"book_history": results}), 200
+            return jsonify({"book_history": results, "current_page": current_page, "all_pages": all_pages, 
+        "next_page": next_page, "previous_page": prev_page}), 200
             
     else:
         books_borrowed = BookHistory.get_user_history(usermail)
@@ -98,4 +105,6 @@ def borrow_history():
             return Response(json.dumps({"Message": "You do not have a book that is not returned."}), status = 404,\
              content_type='application/json')
         else:
-            return jsonify({"all_books_history": [item.serialize for item in books_borrowed]}), 200
+            results = [item.serialize for item in books_borrowed]
+            return jsonify({"book_history": results, "current_page": current_page, "all_pages": all_pages, 
+            "next_page": next_page, "previous_page": prev_page}), 200
