@@ -89,20 +89,23 @@ def upgrade_user_to_admin():
         email = request.json.get('email')
         is_admin = request.json.get('is_admin')
         if not email or not validate_email(email):
-            return Response(json.dumps({'message':'Enter a valid email address'}), content_type='application/json')
+            return Response(json.dumps({'message':'Enter a valid email address'}),400,
+             content_type='application/json')
+        if not is_admin or is_admin =="":
+            return Response(json.dumps({'message':'Enter an admin status'}),400,
+             content_type='application/json')
         
-        # Get the user from the db
-        user = UsersTable.retrieve_user_by_email(email)
-        if user:
-            if type (is_admin) ==bool:
-                status = "Admin" if is_admin else "User"
-                user.is_admin = is_admin
-                user.save()
-                return Response(json.dumps({'message':'You have modified the user of {} to now be{}'.format(email, status)}),
-                content_type='application/json')
-            else:
-                return Response(json.dumps({'message':'Set a valid user status/whether admin or not'}), 
-                content_type='application/json')
+        # Get  user upgrading from the db
+        user_upgrading = UsersTable.retrieve_user_by_email(email)
+        if user_upgrading:
+            if user_upgrading.is_admin is True:
+               return Response(json.dumps({'message':'you already have an admin status'}),
+                 400, content_type='application/json')
+            elif user_upgrading.is_admin is False:
+                user_upgrading.is_admin=True
+                user_upgrading.save
+                return Response(json.dumps({'message':'user status successfully upgraded'}),
+                 200, content_type='application/json')
         return Response (json.dumps({'message':'No user registered with this address'}), 
         status = 204, content_type='application/json' )
     elif request.method == ['GET']:
@@ -165,7 +168,7 @@ def logout():
 
 @auth.route('/reset-password', methods=['POST'])
 def password_reset():
-    usermail = request.json.get('usermail')
+    usermail = request.json.get('email')
     password = request.json.get('password')
     
     if not usermail or not validate_email(usermail):
@@ -182,8 +185,10 @@ def password_reset():
                 return Response(json.dumps({'message': 'No user is registered with this address {}'.format(usermail)}),
                 status=400, content_type='application/json')
     elif user_resetting_password==password:
-                return Response(json.dumps({'message': 'Please use a password that you have not used before'}), status=400,content_type='application/json')
+                return Response(json.dumps({'message': 'Please use a password that you have not used before'}), 
+                status=400,content_type='application/json')
     else:
         user_resetting_password.hash_user_password(password)
         user_resetting_password.save()
-        return Response(json.dumps({'message': '{}, you have successfully reset your password'.format(usermail)}), status = 200, content_type='application/json')
+        return Response(json.dumps({'message':'{}, successful password reset'.format(usermail)}), 
+        status = 200, content_type='application/json')

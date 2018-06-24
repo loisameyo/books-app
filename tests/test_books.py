@@ -1,8 +1,6 @@
 from flask import json, jsonify
 import unittest
 import os, json
-import sys
-sys.path.append('..')
 from app import create_app, db
 from app.models import BooksTable
 from config import app_config
@@ -19,7 +17,7 @@ class EndpointTests(unittest.TestCase):
         with self.app.app_context():
             db.create_all()
 
-        self.user1= {"name": "Odi", "email": "loiceadmin@gmail.com", "password": "Loiceadm1", "is_admin": True }
+        self.user1= {'name': 'Odi', 'email': 'loiceadmin@gmail.com', 'password': 'Loiceadm1', 'is_admin': True }
         self.user= {'name': 'Odi', 'email': 'loice@gmail.com', 'password': 'Loice1' }
         self.book= {'title':'Ruby goes to Mars','author':'Odi Meyo', 'year':'2002','is_not_borrowed':True}
         self.book2= {'title':'Ruby and Rono go to Mars','author':'Odi Meyo', 'year':'2002','is_not_borrowed':True}
@@ -49,10 +47,7 @@ class EndpointTests(unittest.TestCase):
             '/api/v2/auth/login', data=json.dumps(self.user), headers={'content-type':'application/json'})
         self.assertEqual(login_response.status_code, 200)
         # Get user access token
-        res_data = json.loads(login_response.data)
-        # self.assertEqual(res_data, '--')
         access_token = json.loads(login_response.data)['access_token']
-
         return access_token
 
     def test_admin_adding_book(self):
@@ -96,7 +91,7 @@ class EndpointTests(unittest.TestCase):
         # Try to retrieve all books:
         response = self.test_client.get('/api/v2/books', headers={'content-type':'application/json',
         'authorization': 'Bearer {}'.format(access_token)})
-        # self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_getting_one_book(self):
         access_token = self.register_and_login_user()
@@ -173,25 +168,6 @@ class EndpointTests(unittest.TestCase):
         'pub_year': '2015'}), headers=headers)
         self.assertEqual(response.status_code, 401)
         self.assertEqual("This token is blacklisted", json.loads(response.data)['message'])
-
-    def test_borrowing_book(self):
-        access_token=self.register_and_login_user()
-        headers = {'content-type':'application/json', 'authorization': 'Bearer {}'.format(access_token)}
-        self.book_1.save_book_to_db()
-
-        response = self.test_client.post('/api/v2/users/books/1', 
-        data=json.dumps({'email':self.user['email']}),headers=headers)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual('You have successfully borrowed a book', json.loads(response.data)['Message'])
-         
-    def test_return_book(self):
-        access_token=self.register_and_login_user()
-        headers = {'content-type':'application/json', 'authorization': 'Bearer {}'.format(access_token)}
-        self.book_1.save_book_to_db()
-        self.test_client.post('/api/v2/users/books/1', 
-        data=json.dumps({'email':self.user['email']}),headers=headers)
-        response = self.test_client.put('/api/v2/users/books/1', data=json.dumps({'email':self.user['email']}),headers=headers)
-        self.assertEqual(response.status_code, 200)
 
 
     def tearDown(self):
