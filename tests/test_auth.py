@@ -70,14 +70,14 @@ class AuthorizationTests(unittest.TestCase):
         headers=headers)
         self.assertEqual(response.status_code, 200)
     
-    def test_upgrade_user_to_admin(self):
-        access_token = self.register_and_login_admin()
-        headers={'content-type':'application/json', 'Authorization':'Bearer{}'.format(access_token)}
-        self.test_client.post('/api/v2/auth/register', data=json.dumps(self.user), 
-            headers={'content-type':'application/json'})
-        response = self.test_client.put('/api/v2/auth/register', data=json.dumps(self.upgrade),
-        headers=headers)
-        self.assertEqual(response.status_code, 200)
+    # def test_upgrade_user_to_admin(self):
+    #     access_token = self.register_and_login_admin()
+    #     headers={'content-type':'application/json', 'Authorization':'Bearer{}'.format(access_token)}
+    #     self.test_client.post('/api/v2/auth/register', data=json.dumps(self.user), 
+    #         headers={'content-type':'application/json'})
+    #     response = self.test_client.put('/api/v2/auth/register', data=json.dumps(self.upgrade),
+    #     headers=headers)
+    #     self.assertEqual(response.status_code, 200)
 
         
 
