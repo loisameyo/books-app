@@ -31,6 +31,3 @@ class Books():
             "Book status": self.status,
             "Book count": self.count
         }
-      
-
-
