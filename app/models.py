@@ -54,6 +54,15 @@ class UsersTable(db.Model):
         if UsersTable.query.filter_by(username=username).count() > 0:
             return False
         return True
+    
+    @property
+    def serialize(self):
+        return {
+            "User ID": self.user_id,
+            "Name": self.username,
+            "Status": self.is_admin
+            
+        }
    
 
 class BooksTable(db.Model):

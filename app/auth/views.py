@@ -19,7 +19,8 @@ from app.decorators import jwt_required, admin_required
 
 def validate_email(usermail):
     # import pdb; pdb.set_trace()
-    valid_email = re.match("(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$)", usermail.strip())
+    valid_email = re.match("(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)", usermail.strip())
+    # valid_email = re.match("(^[a-zA-Z0-9\._]{3,}@[a-z0-9]{2,}\.[a-z]{2,4}$)", usermail.strip())
     if not valid_email:
         return False
     return True
@@ -85,31 +86,41 @@ def register_new_user():
 @admin_required
 def upgrade_user_to_admin():
     """Upgrade regular user to admin role"""
-    if request.method == ['PUT']:
+    if request.method == 'PUT':
         email = request.json.get('email')
-        is_admin = request.json.get('is_admin')
-        if not email or not validate_email(email):
+    
+        if not validate_email(email):
             return Response(json.dumps({'message':'Enter a valid email address'}),400,
-             content_type='application/json')
-        if not is_admin or is_admin =="":
-            return Response(json.dumps({'message':'Enter an admin status'}),400,
-             content_type='application/json')
-        
+                content_type='application/json')
+
         # Get  user upgrading from the db
         user_upgrading = UsersTable.retrieve_user_by_email(email)
         if user_upgrading:
-            if user_upgrading.is_admin is True:
-               return Response(json.dumps({'message':'you already have an admin status'}),
-                 400, content_type='application/json')
-            elif user_upgrading.is_admin is False:
+            if user_upgrading.is_admin is False:
                 user_upgrading.is_admin=True
-                user_upgrading.save
+                user_upgrading.save()
                 return Response(json.dumps({'message':'user status successfully upgraded'}),
                  200, content_type='application/json')
+            if user_upgrading.is_admin is True:
+                user_upgrading.is_admin=False
+                user_upgrading.save()
+                return Response(json.dumps({'message':'user status successfully downgraded'}),
+                 200, content_type='application/json')
         return Response (json.dumps({'message':'No user registered with this address'}), 
-        status = 204, content_type='application/json' )
-    elif request.method == ['GET']:
-        return jsonify(users = [user.serialize for user in UsersTable.query.all()])
+        status = 200, content_type='application/json' )
+    if request.method == 'GET':
+        all_users = UsersTable.query.paginate()
+        users = all_users.items
+        current_page = all_users.page
+        all_pages = all_users.pages
+        next_page = all_users.next_num
+        prev_page = all_users.prev_num
+        if not all_users:
+            return Response(json.dumps({'message':'No current users' }), 404, content_type= 'application/json')
+        library_users=[item.serialize for item in users]
+            return jsonify({'library users': library_users, "current_page": current_page, "all_pages": all_pages, 
+        "next_page": next_page, "previous_page": prev_page}), 200
+   
         
 
 @auth.route('/login', methods=['POST'])
