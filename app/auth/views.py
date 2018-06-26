@@ -118,7 +118,7 @@ def upgrade_user_to_admin():
         if not all_users:
             return Response(json.dumps({'message':'No current users' }), 404, content_type= 'application/json')
         library_users=[item.serialize for item in users]
-            return jsonify({'library users': library_users, "current_page": current_page, "all_pages": all_pages, 
+        return jsonify({'library users': library_users, "current_page": current_page, "all_pages": all_pages, 
         "next_page": next_page, "previous_page": prev_page}), 200
    
         
