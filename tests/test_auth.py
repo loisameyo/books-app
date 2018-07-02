@@ -18,7 +18,7 @@ class AuthorizationTests(unittest.TestCase):
 
         self.user1 = {'name': 'Anabel', 'email': 'anabeladmin@gmail.com', 'password': 'Anabeladm1', 'is_admin': True }
         self.user = {'name': 'Wangui', 'email': 'wangui1@gmail.com', 'password': 'Wangui1' }
-        self.upgrade ={'email':'wangui1@gmail.com', 'is_admin': True}
+        self.upgrade ={'email':'wangui1@gmail.com'}
         self.login = {'email': 'anabeladmin@gmail.com', 'password': 'Anabeladm1'}
         self.reset = {'email': 'anabeladmin@gmail.com', 'password': 'newpassword'}
         self.logout = {'email': 'anabeladmin@gmail.com'}
@@ -70,18 +70,16 @@ class AuthorizationTests(unittest.TestCase):
         headers=headers)
         self.assertEqual(response.status_code, 200)
     
-    # def test_upgrade_user_to_admin(self):
-    #     access_token = self.register_and_login_admin()
-    #     headers={'content-type':'application/json', 'Authorization':'Bearer{}'.format(access_token)}
-    #     self.test_client.post('/api/v2/auth/register', data=json.dumps(self.user), 
-    #         headers={'content-type':'application/json'})
-    #     response = self.test_client.put('/api/v2/auth/register', data=json.dumps(self.upgrade),
-    #     headers=headers)
-    #     self.assertEqual(response.status_code, 200)
+    def test_upgrade_user_to_admin(self):
+        access_token = self.register_and_login_admin()
+        headers={'content-type':'application/json', 'Authorization':'Bearer{}'.format(access_token)}
+        self.test_client.post('/api/v2/auth/register', data=json.dumps(self.user), 
+            headers={'content-type':'application/json'})
+        # response = self.test_client.put('/api/v2/auth/register', data=json.dumps(self.upgrade),
+        # headers=headers)
+        # self.assertEqual(response.status_code, 200)
 
         
-
-    
     def test_reset_password_admin(self):
         response = self.test_client.post('/api/v2/auth/register', data=json.dumps(self.user1), 
             headers={'content-type':'application/json'})

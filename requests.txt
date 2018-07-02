@@ -2,8 +2,7 @@ User Registration:
 {
     "name":"Deyo1",
 	"email":"dayo1@gmail.com",
-	"password":"Dayo112345#",
-	"is_admin":"True"
+	"password":"Dayo112345#"
 }
 User Login
 {

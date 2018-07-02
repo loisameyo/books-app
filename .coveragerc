@@ -1,4 +1,11 @@
-[run]
-source =
-    app/
-    tests/
+[report]
+omit =
+    */python?.?/*
+    */site-packages/nose/*
+    *runserver.py*
+    *manage.py*
+    */migrations/*
+    */venv/*
+    */instance/*
+    *config.py*
+    *__init__.py*

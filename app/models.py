@@ -1,8 +1,6 @@
 from flask import Flask
 from werkzeug.security import check_password_hash, generate_password_hash
-# from flask_sqlalchemy import SQLAlchemy 
-# from flask_migrate import migrate
-# from sqlalchemy.orm import backref
+from sqlalchemy.orm import backref
 from datetime import datetime, timedelta
 
 

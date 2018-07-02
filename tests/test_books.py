@@ -2,7 +2,7 @@ from flask import json, jsonify
 import unittest
 import os, json
 from app import create_app, db
-from app.models import BooksTable
+from app.models import BooksTable, UsersTable
 from config import app_config
 
 
@@ -17,23 +17,28 @@ class EndpointTests(unittest.TestCase):
         with self.app.app_context():
             db.create_all()
 
-        self.user1= {'name': 'Odi', 'email': 'loiceadmin@gmail.com', 'password': 'Loiceadm1', 'is_admin': True }
+        self.user1= {'name': 'Loice', 'email': 'meyodi18@gmail.com', 'password': 'Loicepassword1' }
         self.user= {'name': 'Odi', 'email': 'loice@gmail.com', 'password': 'Loice1' }
-        self.book= {'title':'Ruby goes to Mars','author':'Odi Meyo', 'year':'2002','is_not_borrowed':True}
-        self.book2= {'title':'Ruby and Rono go to Mars','author':'Odi Meyo', 'year':'2002','is_not_borrowed':True}
-        self.login = {'email': 'loiceadmin@gmail.com', 'password': 'Loiceadm1',}
+        self.book= {'title':'Ruby goes to Mars','author':'Odi Meyo', 'year':2002,'is_not_borrowed':True}
+        self.book2= {'title':'Ruby and Rono go to Mars','author':'Odi Meyo', 'year':2002,'is_not_borrowed':True}
+        self.login = {'email': 'meyodi18@gmail.com', 'password': 'Loicepassword1',}
         self.book_1  = BooksTable(book_title=self.book['title'], book_author=self.book['author'], publication_year=self.book['year'])
         self.book_2  = BooksTable(book_title=self.book2['title'], book_author=self.book2['author'], publication_year=self.book2['year'])
+    
+    
     def register_and_login_admin(self):
         # Register a new admin
         self.test_client.post(
             '/api/v2/auth/register', data=json.dumps(self.user1), headers={'content-type':'application/json'})
+        odi = UsersTable.query.filter_by(usermail="meyodi18@gmail.com").first()
+        odi.is_admin = True
         
         # Login an admin
         login_response = self.test_client.post(
             '/api/v2/auth/login', data=json.dumps(self.login),headers={'content-type':'application/json'})
         # Get admin access token
-        access_token = json.loads(login_response.get_data().decode('utf-8'))['access_token']
+        self.assertEqual(200, login_response.status_code)
+        access_token = json.loads(login_response.data)['access_token']
 
         return access_token
 
@@ -53,7 +58,7 @@ class EndpointTests(unittest.TestCase):
     def test_admin_adding_book(self):
         """Test if an admin can add a book without an access token"""
         response = self.test_client.post('/api/v2/books', data=json.dumps({'title': 'Beginning Python', 'author': 'J Wachira',
-         'pub_year': '2000'}), headers={'content-type':'application/json'})
+         'year': 2000}), headers={'content-type':'application/json'})
         self.assertEqual(response.status_code, 401)
         self.assertIn(
             'Missing Authorization Header', json.loads(response.data)['msg'])
@@ -62,7 +67,7 @@ class EndpointTests(unittest.TestCase):
         # Issue acces token
         access_token = self.register_and_login_admin()
         response = self.test_client.post('/api/v2/books', data=json.dumps({'title': 'Beginning Python', 'author': 'J Wachira',
-         'pub_year': '2000'}), headers={'content-type':'application/json', 'authorization': 'Bearer {}'.format(access_token)})
+         'year': 2000}), headers={'content-type':'application/json', 'authorization': 'Bearer {}'.format(access_token)})
         self.assertEqual(response.status_code, 201)
         self.assertIn('You have successfully added the book  Beginning Python  by author  J Wachira  published in the year 2000', json.loads(response.data)['message'])
 
@@ -73,7 +78,7 @@ class EndpointTests(unittest.TestCase):
 
         # Add book with user access token
         response = self.test_client.post('/api/v2/books', data=json.dumps({'name': 'Beginning Python', 'author': 'J Wachira',
-         'pub_year': '2000'}), headers={'content-type':'application/json', 'authorization': 'Bearer {}'.format(access_token)})
+         'year': 2000}), headers={'content-type':'application/json', 'authorization': 'Bearer {}'.format(access_token)})
         self.assertEqual(response.status_code, 401)
         self.assertEqual('Unauthorized. You need to be an admin to perform this function', json.loads(response.data)['message'])
 

@@ -13,13 +13,13 @@ def post_book():
     if request.method == "POST":
         title = request.json.get('title')
         author = request.json.get('author')
-        year = request.json.get('pub_year')
+        year = request.json.get('year')
 
         if title is None or title.strip()=="":
             return Response(json.dumps({'message': 'Give a valid book title.'}), content_type = 'apllication/json')
         if author is None or author.strip()=="":
             return Response(json.dumps({'message': 'Give a valid book author.'}), content_type = 'apllication/json')
-        if year is None or year.strip()=="":
+        if year is None or type(year) is not int:
             return Response(json.dumps({'message': 'Give a valid year'}), content_type = 'apllication/json')
 
         

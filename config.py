@@ -5,6 +5,7 @@ class Config(object):
     """Configuration setting for the db."""   
     DEBUG = False
     TESTING = False
+    ADMIN = "meyoodi18@gmail.com"
 
 class DevelopmentConfig(Config):
     """Configuration setting at development stage."""

@@ -39,7 +39,8 @@ def register_new_user():
         name = request.json.get('name')
         email = request.json.get('email')
         password = request.json.get('password')
-        is_admin = request.json.get('is_admin')
+        
+      
 
     if not name or name.strip() == "":
             return Response(json.dumps({'message': 'Invalid Entry!Enter a name'}),
@@ -58,26 +59,12 @@ def register_new_user():
     if not check_user:
         hashed_password = generate_password_hash(password)
         registering_user = UsersTable(username=name, password_hash=hashed_password, usermail=email)
-            
-
-        if is_admin:
-            """Let's check if this user has an admin role"""
-            registering_user.is_admin = True
-            registering_user.save()
-
-            # #Automatic log in for registering admin:
-            # access_token = create_access_token(identity=email)
-            # ActiveTokens(email, access_token).save_token()
-            return jsonify({'Message': 'New admin successful registration and Login'}),201
-            # 'access_token': access_token}), 
-
-        else:
-            registering_user.save()
-            # #Automatic log in for registering user
-            # access_token = create_access_token(identity=email)
-            # ActiveTokens(email, access_token).save_token()
-            return jsonify({'Message': 'New user successful registration and Login'}),201
-            # 'access_token': access_token}), 201
+        registering_user.save()
+        # #Automatic log in for registering user
+        # access_token = create_access_token(identity=email)
+        # ActiveTokens(email, access_token).save_token()
+        return jsonify({'Message': 'New user successful registration'}), 201
+        # 'access_token': access_token}), 201
     return Response(json.dumps({'message': 'This email {} is already registered'. format(email)}), status=409,
     content_type='application/json')
 
@@ -99,12 +86,12 @@ def upgrade_user_to_admin():
             if user_upgrading.is_admin is False:
                 user_upgrading.is_admin=True
                 user_upgrading.save()
-                return Response(json.dumps({'message':'user status successfully upgraded'}),
+                return Response(json.dumps({'message':'user status successfully set to admin'}),
                  200, content_type='application/json')
             if user_upgrading.is_admin is True:
                 user_upgrading.is_admin=False
                 user_upgrading.save()
-                return Response(json.dumps({'message':'user status successfully downgraded'}),
+                return Response(json.dumps({'message':'user status successfully set to non-admin'}),
                  200, content_type='application/json')
         return Response (json.dumps({'message':'No user registered with this address'}), 
         status = 200, content_type='application/json' )
@@ -116,7 +103,8 @@ def upgrade_user_to_admin():
         next_page = all_users.next_num
         prev_page = all_users.prev_num
         if not all_users:
-            return Response(json.dumps({'message':'No current users' }), 404, content_type= 'application/json')
+            return Response(json.dumps({'message':'No current users' }), 404,
+             content_type= 'application/json')
         library_users=[item.serialize for item in users]
         return jsonify({'library users': library_users, "current_page": current_page, "all_pages": all_pages, 
         "next_page": next_page, "previous_page": prev_page}), 200
@@ -129,20 +117,20 @@ def login():
     usermail = request.json.get('email')
     password = request.json.get('password')
 
-    if not usermail or not validate_email(usermail):
+    if not validate_email(usermail):
         return Response(json.dumps({'message': 'Please enter a valid email address'}),
         status=400, content_type='application/json')
-    if not password or not validate_password(password): 
+    if not validate_password(password): 
         return Response(json.dumps({'message': 'Password Invalid. Please try again'}),
          status=400, content_type='application/json')
     logging_in_user = UsersTable.retrieve_user_by_email(usermail=usermail)
     logged_in_user = ActiveTokens.find_user_with_issued_token(usermail)
 
-    # if logged_in_user.access_token is not logged_in_user.token_is_expired():
-    #     return Response(json.dumps({"Token":logged_in_user.access_token,
-    #      "Message:":"You are already logged in!"}), status=202, content_type='application/json')  
+    if logged_in_user and not logged_in_user.token_is_expired():
+        return Response(json.dumps({"Token":logged_in_user.access_token,
+        "Message:":"You are already logged in!"}), status=202, content_type='application/json')  
     
-    if logged_in_user:
+    elif logged_in_user and logged_in_user.token_is_expired():
         access_token = create_access_token(identity=usermail)
         logged_in_user.access_token = access_token
         logged_in_user.save_issued_token()
@@ -156,9 +144,10 @@ def login():
            ActiveTokens(usermail, access_token).save_issued_token()
            return jsonify({'Message': 'Login successful',
                             'access_token': access_token}), 200
-        else:
-           return Response(json.dumps({'Messsage': 'Unsuccessful login. Invalid email or password'}),
-           status=401, content_type='application/json')
+
+    return Response(json.dumps({'Messsage': 
+        'Unsuccessful login. This user {} is not registered'.format(logging_in_user)}),
+    status=401, content_type='application/json')
 
     
 @auth.route('/logout', methods=['POST'])
@@ -171,7 +160,8 @@ def logout():
     if not RevokedTokens.is_jti_blacklisted(jti):
         logout_token.token_revoke()
         ActiveTokens.find_user_with_issued_token(user_usermail=logged_in_user).delete_active_token()
-        return Response(json.dumps({'message': 'You are successfully logged out'}), status=200)
+        return Response(json.dumps({'message': 'You are successfully logged out'}),
+         status=200, content_type='application/json')
     else:
         return jsonify(
             {'message': '{} is not logged in or the token has been blacklisted'.format(logged_in_user)})
