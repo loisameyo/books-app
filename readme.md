@@ -4,9 +4,9 @@ Hello Books is a simple API that implements CRUD functionalities. Two knids of u
 
 ## Code Integration and Testing
 
-[![Build Status](https://travis-ci.org/loisameyo/books-app.svg?branch=development)](https://travis-ci.org/loisameyo/books-app)
-[![Coverage Status](https://coveralls.io/repos/github/loisameyo/books-app/badge.svg?branch=development)](https://coveralls.io/github/loisameyo/books-app?branch=development)
-<a href="https://codeclimate.com/github/loisameyo/books-app/maintainability"><img src="https://api.codeclimate.com/v1/badges/9000718b9ae0e8661a9c/maintainability" /></a>
+[![Build Status](https://travis-ci.org/loisameyo/books-app.svg?branch=development)](https://travis-ci.org/loicemeyo/books-app)
+[![Coverage Status](https://coveralls.io/repos/github/loisameyo/books-app/badge.svg?branch=development)](https://coveralls.io/github/loicemeyo/books-app?branch=development)
+<a href="https://codeclimate.com/github/loicemeyo/books-app/maintainability"><img src="https://api.codeclimate.com/v1/badges/9000718b9ae0e8661a9c/maintainability" /></a>
 
 # Functionalities
 
