@@ -20,7 +20,6 @@ from app.decorators import jwt_required, admin_required
 def validate_email(usermail):
     # import pdb; pdb.set_trace()
     valid_email = re.match("(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)", usermail.strip())
-    # valid_email = re.match("(^[a-zA-Z0-9\._]{3,}@[a-z0-9]{2,}\.[a-z]{2,4}$)", usermail.strip())
     if not valid_email:
         return False
     return True
@@ -55,16 +54,13 @@ def register_new_user():
     
     """Ensure this user is not already registered"""
     check_user = UsersTable.query.filter_by(usermail=email).first()
-    print(check_user)
+    
     if not check_user:
         hashed_password = generate_password_hash(password)
         registering_user = UsersTable(username=name, password_hash=hashed_password, usermail=email)
         registering_user.save()
-        # #Automatic log in for registering user
-        # access_token = create_access_token(identity=email)
-        # ActiveTokens(email, access_token).save_token()
+       
         return jsonify({'Message': 'New user successful registration'}), 201
-        # 'access_token': access_token}), 201
     return Response(json.dumps({'message': 'This email {} is already registered'. format(email)}), status=409,
     content_type='application/json')
 
@@ -127,6 +123,9 @@ def login():
     logged_in_user = ActiveTokens.find_user_with_issued_token(usermail)
 
     if logged_in_user and not logged_in_user.token_is_expired():
+        access_token = create_access_token(identity=usermail)
+        logged_in_user.access_token = access_token
+        logged_in_user.save_issued_token()
         return Response(json.dumps({"Token":logged_in_user.access_token,
         "Message:":"You are already logged in!"}), status=202, content_type='application/json')  
     
@@ -136,7 +135,7 @@ def login():
         logged_in_user.save_issued_token()
         return Response(json.dumps({"Token":logged_in_user.access_token,
          "Message:":"Token expired.Use this new token"}),status=200, content_type='application/json')
-       
+    
     else:
         #Fetch a logging in user from the db using their email
         if logging_in_user and logging_in_user.verify_password(password):
@@ -146,8 +145,7 @@ def login():
                             'access_token': access_token}), 200
 
     return Response(json.dumps({'Messsage': 
-        'Unsuccessful login. This user {} is not registered'.format(logging_in_user)}),
-    status=401, content_type='application/json')
+    'Unsuccessful login. Wrong email or password'}), status=401, content_type='application/json')
 
     
 @auth.route('/logout', methods=['POST'])

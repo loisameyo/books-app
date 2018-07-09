@@ -26,7 +26,7 @@ def borrow_book(book_id):
         jti = get_raw_jwt()['jti']
         logged_in_user = get_jwt_identity()
         if logged_in_user != usermail or RevokedTokens.is_jti_blacklisted(jti):
-            return Response(json.dumps({'message': 'Please login to receive a token'}))
+            return Response(json.dumps({'message': 'Unknown user. Please register and login to receive a token'}))
         else:
             one_book = BooksTable.query.filter_by(book_id=book_id).first()
             # book_details = BooksTable.retrieve_book_by_id(book_id)

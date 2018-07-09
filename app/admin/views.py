@@ -16,23 +16,25 @@ def post_book():
         year = request.json.get('year')
 
         if title is None or title.strip()=="":
-            return Response(json.dumps({'message': 'Give a valid book title.'}), content_type = 'apllication/json')
+            return Response(json.dumps({'message': 'Give a valid book title.'}), content_type = 'application/json')
         if author is None or author.strip()=="":
-            return Response(json.dumps({'message': 'Give a valid book author.'}), content_type = 'apllication/json')
+            return Response(json.dumps({'message': 'Give a valid book author.'}), content_type = 'application/json')
         if year is None or type(year) is not int:
-            return Response(json.dumps({'message': 'Give a valid year'}), content_type = 'apllication/json')
-
+            return Response(json.dumps({'message': 'Give a valid year'}), content_type = 'application/json')
         
-        new_book = BooksTable(
+        """Ensure this book is not already added"""
+        check_book = BooksTable.query.filter_by(book_title=title, 
+        book_author=author, publication_year=year).first()
+        if not check_book:
+            new_book = BooksTable(
             book_title=title, book_author=author, publication_year=year)
-        try:
             new_book.save_book_to_db()
-        except Exception:
-            return Response(json.dumps({'message': 'Book already exists'}))
-        return Response(json.dumps({'message': \
-        'You have successfully added the book  {}  by author  {}  published in the year {}'\
-        .format(title, author, year)}), status=201, content_type='application/json')
-
+            return Response(json.dumps({'message': \
+            'You have successfully added the book  {}  by author  {}  published in the year {}'\
+            .format(title, author, year)}), status=201, content_type='application/json')
+        
+        return Response(json.dumps({'message': 'Book already exists'}), 400, content_type="application/json")
+        
 @admin.route('/books/<bookId>', methods=['PUT', 'DELETE'])
 @jwt_required
 @admin_required
@@ -40,8 +42,10 @@ def update_book_details(bookId):
     """This method is for the admin to update details of a book or delete it"""
     try:
         bookId = int(bookId)
-        # Retrieve a book with that ID from the DB.
+        
+        # Retrieve a book with given ID from the DB.
         book_to_update = BooksTable.query.filter_by(book_id=bookId).first()
+        
         # Check if the book actually exists in the DB.
         if not book_to_update:
             return Response(json.dumps({'message': 'This book does not exist in the library.'}),\
@@ -53,11 +57,18 @@ def update_book_details(bookId):
             year = request.json.get('year')
 
             if title and title.strip() !="":
-                book_to_update.title = title
+                #If the admin gives a valid new title then book title is updated to the given one
+                book_to_update.book_title = title
+            else:
+                #The title of the book remains unchanged
+                book_to_update.book_title= book_to_update.book_title
             if author and author.strip() !="":
-                book_to_update.author = author
-            if year:
-                book_to_update.year = year
+                book_to_update.book_author = author
+            else:book_to_update.book_author = book_to_update.book_author
+
+            if year is not None:
+                book_to_update.publication_year = year
+            else: book_to_update.publication_year = book_to_update.publication_year
          
             book_to_update.save_book_to_db()
             return Response(json.dumps({'message': 'Successfully updated book details'}),
