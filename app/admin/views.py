@@ -14,6 +14,7 @@ def post_book():
         title = request.json.get('title')
         author = request.json.get('author')
         year = request.json.get('year')
+        serial_number = request.json.get('serial_number')
 
         if title is None or title.strip()=="":
             return Response(json.dumps({'message': 'Give a valid book title.'}), content_type = 'application/json')
@@ -23,17 +24,16 @@ def post_book():
             return Response(json.dumps({'message': 'Give a valid year'}), content_type = 'application/json')
         
         """Ensure this book is not already added"""
-        check_book = BooksTable.query.filter_by(book_title=title, 
-        book_author=author, publication_year=year).first()
+        check_book = BooksTable.query.filter_by(serial_number=serial_number).first()
         if not check_book:
             new_book = BooksTable(
-            book_title=title, book_author=author, publication_year=year)
+            book_title=title, book_author=author, publication_year=year, serial_number=serial_number)
             new_book.save_book_to_db()
             return Response(json.dumps({'message': \
             'You have successfully added the book  {}  by author  {}  published in the year {}'\
             .format(title, author, year)}), status=201, content_type='application/json')
-        
-        return Response(json.dumps({'message': 'Book already exists'}), 400, content_type="application/json")
+        else:
+            return Response(json.dumps({'message': 'Book already exists'}), 400, content_type="application/json")
         
 @admin.route('/books/<bookId>', methods=['PUT', 'DELETE'])
 @jwt_required

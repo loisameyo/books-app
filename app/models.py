@@ -25,10 +25,6 @@ class UsersTable(db.Model):
         self.usermail = usermail
         self.password_hash =password_hash
 
-    def register(self):
-        db.session.add(self)
-        db.session.commit()
-
     def save(self):
         db.session.add(self)
         db.session.commit()
@@ -68,7 +64,8 @@ class BooksTable(db.Model):
     __tablename__ = 'books'
  
     book_id = db.Column(db.Integer, primary_key=True)
-    book_title = db.Column(db.String(30), unique=True, nullable=False)
+    serial_number = db.Column(db.String(10), unique=True)
+    book_title = db.Column(db.String(30), nullable=False)
     book_author = db.Column(db.String(30), nullable=False)
     publication_year = db.Column(db.Integer)
     is_not_borrowed = db.Column(db.Boolean, default=True)
@@ -97,6 +94,7 @@ class BooksTable(db.Model):
         return {
             "Book ID": self.book_id,
             "Book Title": self.book_title,
+            "Serial Number":self.serial_number,
             "Book Author": self.book_author,
             "Publication year": self.publication_year,
             "Status": self.is_not_borrowed

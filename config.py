@@ -4,7 +4,6 @@ import os
 class Config(object):
     """Configuration setting for the db."""   
     DEBUG = False
-    TESTING = False
     ADMIN = "meyoodi18@gmail.com"
 
 class DevelopmentConfig(Config):
@@ -15,14 +14,13 @@ class DevelopmentConfig(Config):
 
 class TestingConfig(Config):
     """Configuration setting at testing stage"""
-    SQLALCHEMY_DATABASE_URI= 'sqlite:///:memory:'
+    SQLALCHEMY_DATABASE_URI= os.getenv('TEST_DATABASE_URL')
     DEBUG = True
 
 class ProductionConfig(Config):
     """Configuration setting at production stage"""
     SQLALCHEMY_DATABASE_URI= os.getenv('DATABASE_URL')
     DEBUG = False
-    TESTING = False
 
 
 
