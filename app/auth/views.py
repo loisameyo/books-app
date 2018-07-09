@@ -120,7 +120,7 @@ def login():
     if not validate_email(usermail):
         return Response(json.dumps({'message': 'Please enter a valid email address'}),
         status=400, content_type='application/json')
-    if not validate_password(password): 
+    if not password or not validate_password(password): 
         return Response(json.dumps({'message': 'Password Invalid. Please try again'}),
          status=400, content_type='application/json')
     logging_in_user = UsersTable.retrieve_user_by_email(usermail=usermail)
