@@ -188,6 +188,54 @@ class EndpointTests(unittest.TestCase):
         self.assertEqual(response.status_code, 401)
         self.assertEqual("This token is blacklisted", json.loads(response.data)['message'])
 
+    def test_borrow_book_without_valid_token(self):
+        self.book_1.save_book_to_db()
+        response = self.test_client.post('/api/v2/users/books/1', 
+        data=json.dumps({'email':self.user['email']}), headers = {'content-type':'application/json'})
+        self.assertEqual(response.status_code, 401)
+    
+    def test_borrow_book(self):
+        access_token=self.register_and_login_user()
+        headers = {'content-type':'application/json', 'authorization': 'Bearer {}'.format(access_token)}
+        self.book_1.save_book_to_db()
+
+        response = self.test_client.post('/api/v2/users/books/1', 
+        data=json.dumps({'email':self.user['email']}),headers=headers)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual('You have successfully borrowed a book', json.loads(response.data)['Message'])
+
+    def test_borrow_nonexistent_book(self):
+        access_token=self.register_and_login_user()
+        headers = {'content-type':'application/json', 'authorization': 'Bearer {}'.format(access_token)}
+        self.book_1.save_book_to_db()
+
+        response = self.test_client.post('/api/v2/users/books/2', 
+        data=json.dumps({'email':self.user['email']}),headers=headers)
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual('The library has no book with that ID', json.loads(response.data)['message'])
+
+         
+    def test_return_book(self):
+        access_token=self.register_and_login_user()
+        headers = {'content-type':'application/json', 'authorization': 'Bearer {}'.format(access_token)}
+        self.book_1.save_book_to_db()
+        self.test_client.post('/api/v2/users/books/1', 
+        data=json.dumps({'email':self.user['email']}),headers=headers)
+        response = self.test_client.put('/api/v2/users/books/1', data=json.dumps({'email':self.user['email']}),headers=headers)
+        self.assertEqual(response.status_code, 200)
+    
+    def test_return_book_not_borrowed(self):
+        access_token=self.register_and_login_user()
+        headers = {'content-type':'application/json', 'authorization': 'Bearer {}'.format(access_token)}
+        self.book_1.save_book_to_db()
+        self.book_2.save_book_to_db()
+        self.test_client.post('/api/v2/users/books/1', 
+        data=json.dumps({'email':self.user['email']}),headers=headers)
+        response = self.test_client.put('/api/v2/users/books/2', data=json.dumps({'email':self.user['email']}),headers=headers)
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual('This book has not been borrowed {}'.format(self.book_2.book_title), json.loads(response.data)['Message'])
+
+
 
     def tearDown(self):
         """Return to normal state after test."""
