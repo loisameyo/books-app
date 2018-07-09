@@ -12,18 +12,33 @@ Hello Books is a simple API that implements CRUD functionalities. Two knids of u
 
 The following are functionalities enabled with this API:
 
-Functionality                       |Endpoint
-------------------------------------|------------------------------
-|POST  /api/books                   | add a book                  |
-|PUT /api/books/<bookId>            | modify a book’s information |
-|DELETE /api//books/<bookId>        | Remove a book               |
-|GET  /api/books                    | Retrieves all books         |
-|GET  /api/books/<bookId>           | Get a book                  |
-|POST  /api/users/books/<bookId>    | Borrow a book               |
-|POST /api/auth/register            | Creates a user account      |
-|POST /api/auth/login               | Logs in a user              |
-|POST /api/auth/logout              | Logs out a user             |
-|POST /api/auth/reset-password      | Password reset              |
+-[View here ](https://hellobooks12.docs.apiary.io/) a documentation on how to use this API.  
+
+|Endpoints and methods               | Functionality              |Authorization criteria|
+|------------------------------------|----------------------------|---------------------
+|/api/v1/books (POST)                |Add a book                  | Admin only               
+|/api/v1/books/*bookId*(PUT)         |Modify a book’s information | Admin only
+|/api/v1/books/*bookId*(DELETE)      |Remove a book               | Admin only
+|/api/v1/books(GET)                  |Retrieves all books         | Everybody
+|/api/v1/books/*book_id*(GET)        |Get a book                  | Everybody
+|/api/v1/users/books/*book_id*(POSt) |Borrow a book               | logged in User and Admin
+|/api/v1/auth/register(POST)         |Register a user             | Everybody
+|/api/v1/auth/register(PUT)          |Upgrade a user to admin     | Admin only
+|/api/v1/auth/register(GET)          |Get registered users        | Admin only
+|/api/v1/auth/login(POST)            |Login a user                | Registered user
+|/api/v1/auth/logout(POST)           |Logout a user               | Loggged in user
+|/api/v1/auth/reset-password(POST)   |Reset a user Password       | Registered user
+|/api/v1/users/books/*book_id*(POST) |Borrow a books              |Logged in user
+|/api/v1/users/books/*book_id*(PUT)  |Return a books              |Logged in user
+|/api/v1/users/books(GET)            |Get user borrowing history  |Logged in user
+
+**Prequisites**
+```
+Python - version 3.6.5
+Postgress database
+postman - To run various endponts
+```
+
 
 ## Installation & Setup
 
@@ -41,16 +56,31 @@ Functionality                       |Endpoint
 6. Enter the project directory by running `cd Desktop\books-api\books-app`
 7. Once inside the directory install the required modules
  	* Run `pip install -r requirements.txt`
+8. - Create databaseand set global variables on the terminal  
+  	- For database set `DATABASE_URL= 'yourdatabaseurl'`
+	- For email sending   
+	`Email='defaultmail@example.com'`   
+	`Username='yourusername'`   
+	`Password='dmy_password'`
+
+- Run manage.py to create database tables as below   
+    `python manage.py db init`   
+    `python manage.py db migrate`   
+    `python manage.py db upgrade`
+
 8. Inside the application folder run the run.py file:
  * On the terminal type `python run.py` to start the application
 
 ## Testing
-To run the tests for the app, run;
+Hello-Books API makes use of unittest to ascertain that the enpoints work as expected. To run the tests activate the virtual environment and then run: 
 
 * nosetests -v
-
+* nosetests --with-coverage (to view the coverage report)
 
 ## Authors
 
 * **Loice Meyo**
 
+## First publication
+
+* **2018**
