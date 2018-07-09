@@ -1,6 +1,13 @@
 language: python
 python:
   - "3.6"
+postgres:
+  adapter: postgresql
+  database: test_db
+
+services:
+  - postgresql
+ 
 install:
   - pip install -r requirements.txt
   - pip install coveralls
@@ -16,3 +23,8 @@ after_success:
   - coveralls
   - codecov
 
+env:
+ - DB=postgres
+
+before_script:
+ - psql -c "CREATE DATABASE test_db;" -U postgres
