@@ -55,18 +55,8 @@ postman - To run various endponts
 5. Activate the virtual environment by running `venv/Scripts/activate`
 6. Enter the project directory by running `cd Desktop\books-api\books-app`
 7. Once inside the directory install the required modules
- 	* Run `pip install -r requirements.txt`
-8. - Create databaseand set global variables on the terminal  
-  	- For database set `DATABASE_URL= 'yourdatabaseurl'`
-	- For email sending   
-	`Email='defaultmail@example.com'`   
-	`Username='yourusername'`   
-	`Password='dmy_password'`
+ * Run `pip install -r requirements.txt`
 
-- Run manage.py to create database tables as below   
-    `python manage.py db init`   
-    `python manage.py db migrate`   
-    `python manage.py db upgrade`
 
 8. Inside the application folder run the run.py file:
  * On the terminal type `python run.py` to start the application
@@ -75,7 +65,6 @@ postman - To run various endponts
 Hello-Books API makes use of unittest to ascertain that the enpoints work as expected. To run the tests activate the virtual environment and then run: 
 
 * nosetests -v
-* nosetests --with-coverage (to view the coverage report)
 
 ## Authors
 
