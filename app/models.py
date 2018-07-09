@@ -84,6 +84,9 @@ class BooksTable(db.Model):
 
     def retrieve_book_by_id(self, book_id):
         return BooksTable.query.filter_by(book_id=book_id).first()
+    
+    def retrieve_book_by_title_author_year(title, author, year):
+        return BooksTable.query.filter_by(book_title=title, book_author=author, publication_year=year).first()
 
     def delete_book(self):
         db.session.delete(self)
