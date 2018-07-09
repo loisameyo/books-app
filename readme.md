@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/loicemeyo/books-app.svg?branch=development)](https://travis-ci.org/loicemeyo/books-app)
 [![Coverage Status](https://coveralls.io/repos/github/loisameyo/books-app/badge.svg?branch=development)](https://coveralls.io/github/loicemeyo/books-app?branch=development)
-<a href="https://codeclimate.com/github/loicemeyo/books-app/maintainability"><img src="https://api.codeclimate.com/v1/badges/9000718b9ae0e8661a9c/maintainability" /></a>
+[![Maintainability](https://api.codeclimate.com/v1/badges/c3215862a12255fe42ed/maintainability)](https://codeclimate.com/github/loicemeyo/books-app/maintainability)
 
 # Hello Books
 
