@@ -82,15 +82,17 @@ class EndpointTests(unittest.TestCase):
         self.assertEqual(response.status_code, 401)
         self.assertEqual('Unauthorized. You need to be an admin to perform this function', json.loads(response.data)['message'])
 
-    def test_getting_all_books(self):
-        """Test for retrieving all books"""
+    def test_getting_books_from_empty_db(self):
         access_token = self.register_and_login_user()
         # Test if user can retrieve all books when the db is empty
         response = self.test_client.get('/api/v2/books', headers={'content-type':'application/json',
          'authorization': 'Bearer {}'.format(access_token)})
         self.assertEqual(response.status_code, 200)
 
-        
+    def test_getting_books_from_populated_db(self):
+        """Test for retrieving all books"""
+        access_token = self.register_and_login_user()
+        #Let's have some books posted to the db before retrieval
         self.book_1.save_book_to_db()
         self.book_2.save_book_to_db()
         # Try to retrieve all books:
@@ -98,13 +100,17 @@ class EndpointTests(unittest.TestCase):
         'authorization': 'Bearer {}'.format(access_token)})
         self.assertEqual(response.status_code, 200)
 
-    def test_getting_one_book(self):
+    def test_retrieving_unavailable_book(self):
         access_token = self.register_and_login_user()
         headers={'content-type':'application/json', 'authorization': 'Bearer {}'.format(access_token)}
         # Retrieving an unavailable book:
         response = self.test_client.get('/api/v2/books/12', headers=headers)
         self.assertEqual(response.status_code, 404)
         self.assertEqual('There is no book with that ID in the BooksTable', json.loads(response.data)['Message'])
+        
+    def test_retrieving_available_book(self):
+        access_token = self.register_and_login_user()
+        headers={'content-type':'application/json', 'authorization': 'Bearer {}'.format(access_token)}
         # Add a new book in order to access it:
         self.book_1.save_book_to_db()
         self.book_2.save_book_to_db()
@@ -113,6 +119,9 @@ class EndpointTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(json.loads(response.data)['Message'], "Book successfully retrieved")
 
+    def test_retrieve_book_with_invalid_id(self): 
+        access_token = self.register_and_login_user()
+        headers={'content-type':'application/json', 'authorization': 'Bearer {}'.format(access_token)}
         # Retrieve a book with invalid ID:
         response = self.test_client.get('/api/v2/books/XCGWQU', headers=headers)
         self.assertEqual(response.status_code, 404)
@@ -128,7 +137,12 @@ class EndpointTests(unittest.TestCase):
         response = self.test_client.delete('/api/v2/books/1',  headers=headers)
         self.assertEqual(response.status_code, 200)
         self.assertIn(f"You have deleted this book {self.book_1.book_title}", json.loads(response.data)['message'])
-        # Try to delete a non-existent book: vb
+    
+    def test_admin_deleting_non_existsent_book(self):
+        # Add a new book:
+        access_token = self.register_and_login_admin()
+        headers={'content-type':'application/json', 'authorization': 'Bearer {}'.format(access_token)}
+        self.book_1.save_book_to_db()
         response = self.test_client.delete('/api/v2/books/10', headers=headers)
         self.assertEqual(response.status_code, 404)
         self.assertIn("This book does not exist in the library.", json.loads(response.data)['message'])
