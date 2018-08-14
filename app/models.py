@@ -21,9 +21,9 @@ class UsersTable(db.Model):
     user_history = db.relationship('BookHistory', backref = 'user')
 
     def __init__(self, username, usermail, password_hash):
-        self.username = username
-        self.usermail = usermail
-        self.password_hash =password_hash
+        self.username=username
+        self.usermail=usermail
+        self.password_hash=password_hash
 
     def save(self):
         db.session.add(self)
@@ -54,7 +54,8 @@ class UsersTable(db.Model):
         return {
             "User ID": self.user_id,
             "Name": self.username,
-            "Status": self.is_admin
+            "Status": self.is_admin,
+            "Email":self.usermail
             
         }
    
@@ -93,10 +94,10 @@ class BooksTable(db.Model):
     def serialize(self):
         return {
             "Book ID": self.book_id,
-            "Book Title": self.book_title,
+            "Title": self.book_title,
             "Serial Number":self.serial_number,
-            "Book Author": self.book_author,
-            "Publication year": self.publication_year,
+            "Author": self.book_author,
+            "Publication": self.publication_year,
             "Status": self.is_not_borrowed
         }
 

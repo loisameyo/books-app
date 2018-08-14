@@ -17,11 +17,15 @@ class EndpointTests(unittest.TestCase):
         with self.app.app_context():
             db.create_all()
 
-        self.user1= {'name': 'Loice', 'email': 'meyodi18@gmail.com', 'password': 'Loicepassword1' }
-        self.user= {'name': 'Odi', 'email': 'loice@gmail.com', 'password': 'Loice1' }
-        self.book= {'title':'Ruby goes to Mars','author':'Odi Meyo', 'year':2002,'is_not_borrowed':True}
-        self.book2= {'title':'Ruby and Rono go to Mars','author':'Odi Meyo', 'year':2002,'is_not_borrowed':True}
-        self.login = {'email': 'meyodi18@gmail.com', 'password': 'Loicepassword1',}
+        self.user1={
+            'name': 'Loice', 'email': 'meyodi18@gmail.com',
+            'password': 'Loicepassword1','confirm_password':'Loicepassword1'}
+        self.user={
+            'name': 'Odi', 'email': 'loice@gmail.com',
+            'password': 'Loice1','confirm_password':'Loice1'}
+        self.book={'title':'Ruby goes to Mars','author':'Odi Meyo', 'year':2002,'is_not_borrowed':True}
+        self.book2={'title':'Ruby and Rono go to Mars','author':'Odi Meyo', 'year':2002,'is_not_borrowed':True}
+        self.login={'email': 'meyodi18@gmail.com', 'password': 'Loicepassword1',}
         self.book_1  = BooksTable(book_title=self.book['title'], book_author=self.book['author'], publication_year=self.book['year'])
         self.book_2  = BooksTable(book_title=self.book2['title'], book_author=self.book2['author'], publication_year=self.book2['year'])
     
@@ -64,7 +68,7 @@ class EndpointTests(unittest.TestCase):
             'Missing Authorization Header', json.loads(response.data)['msg'])
 
         """Test if an admin can add a book with an access token"""
-        # Issue acces token
+        # Issue access token
         access_token = self.register_and_login_admin()
         response = self.test_client.post('/api/v2/books', data=json.dumps({'title': 'Beginning Python', 'author': 'J Wachira',
          'year': 2000}), headers={'content-type':'application/json', 'authorization': 'Bearer {}'.format(access_token)})

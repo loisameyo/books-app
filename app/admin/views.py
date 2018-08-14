@@ -20,7 +20,7 @@ def post_book():
             return Response(json.dumps({'message': 'Give a valid book title.'}), content_type = 'application/json')
         if author is None or author.strip()=="":
             return Response(json.dumps({'message': 'Give a valid book author.'}), content_type = 'application/json')
-        if year is None or type(year) is not int:
+        if year is None:
             return Response(json.dumps({'message': 'Give a valid year'}), content_type = 'application/json')
         
         """Ensure this book is not already added"""

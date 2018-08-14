@@ -4,6 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import migrate
 from flask_mail import Mail
 from flask_jwt_extended import JWTManager
+from flask_cors import CORS
 from config import app_config
 from .error_handlers import route_not_found, method_not_found
 from .error_handlers import internal_server_error
@@ -14,12 +15,14 @@ mail = Mail()
 
 def create_app(config_name):
     app = Flask(__name__)
+    CORS(app)
     app.config.from_object(app_config[config_name])
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.secret_key = 'secret'
     db.init_app(app)
     app.url_map.strict_slashes = False
     app.config['JWT_SECRET_KEY'] = 'jwt-token-secret-key'
+    mail.init_app(app)
     jwt = JWTManager(app)
 
     # Register blueprints
