@@ -1,12 +1,10 @@
-#Hello Books
+[![Build Status](https://travis-ci.org/loicemeyo/books-app.svg?branch=development)](https://travis-ci.org/loicemeyo/books-app)
+[![Coverage Status](https://coveralls.io/repos/github/loisameyo/books-app/badge.svg?branch=development)](https://coveralls.io/github/loicemeyo/books-app?branch=development)
+[![Maintainability](https://api.codeclimate.com/v1/badges/c3215862a12255fe42ed/maintainability)](https://codeclimate.com/github/loicemeyo/books-app/maintainability)
+
+# Hello Books
 
 Hello Books is a simple API that implements CRUD functionalities. Two knids of users can use this API. A normal user (non-admin) can register to be a user, login, view all books available, borrow a book and logout. The admin, in addition to what the normal user can do is also able to create a new book, edit or delete an existing book. 
-
-## Code Integration and Testing
-
-[![Build Status](https://travis-ci.org/loisameyo/books-app.svg?branch=development)](https://travis-ci.org/loicemeyo/books-app)
-[![Coverage Status](https://coveralls.io/repos/github/loisameyo/books-app/badge.svg?branch=development)](https://coveralls.io/github/loicemeyo/books-app?branch=development)
-<a href="https://codeclimate.com/github/loicemeyo/books-app/maintainability"><img src="https://api.codeclimate.com/v1/badges/9000718b9ae0e8661a9c/maintainability" /></a>
 
 # Functionalities
 
@@ -55,18 +53,8 @@ postman - To run various endponts
 5. Activate the virtual environment by running `venv/Scripts/activate`
 6. Enter the project directory by running `cd Desktop\books-api\books-app`
 7. Once inside the directory install the required modules
- 	* Run `pip install -r requirements.txt`
-8. - Create databaseand set global variables on the terminal  
-  	- For database set `DATABASE_URL= 'yourdatabaseurl'`
-	- For email sending   
-	`Email='defaultmail@example.com'`   
-	`Username='yourusername'`   
-	`Password='dmy_password'`
+ * Run `pip install -r requirements.txt`
 
-- Run manage.py to create database tables as below   
-    `python manage.py db init`   
-    `python manage.py db migrate`   
-    `python manage.py db upgrade`
 
 8. Inside the application folder run the run.py file:
  * On the terminal type `python run.py` to start the application
@@ -75,7 +63,6 @@ postman - To run various endponts
 Hello-Books API makes use of unittest to ascertain that the enpoints work as expected. To run the tests activate the virtual environment and then run: 
 
 * nosetests -v
-* nosetests --with-coverage (to view the coverage report)
 
 ## Authors
 
