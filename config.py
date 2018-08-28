@@ -1,5 +1,5 @@
 
-import os
+import os, datetime
 
 class Config(object):
     """Configuration setting for the db."""   
@@ -7,6 +7,7 @@ class Config(object):
     ADMIN = "meyoodi18@gmail.com"
     SECRET = os.getenv('SECRET_KEY')
     SECURITY_PASSWORD_SALT = os.getenv('SECURITY_PASSWORD_SALT')
+    JWT_ACCESS_TOKEN_EXPIRES = datetime.timedelta(minutes=1)
     # mail configuration
     MAIL_DEFAULT_SENDER = os.environ.get('MAIL_USER')
     MAIL_SERVER = 'smtp.gmail.com'

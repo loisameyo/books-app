@@ -130,6 +130,7 @@ def login():
         logged_in_user.access_token = access_token
         logged_in_user.save_issued_token()
         return Response(json.dumps({"Token":logged_in_user.access_token,
+        'Admin': logging_in_user.is_admin,
         "Message:":"You are already logged in!"}), status=202, content_type='application/json')  
     
     elif logged_in_user and logged_in_user.token_is_expired() and logging_in_user.verify_password(password):
@@ -145,6 +146,7 @@ def login():
            access_token = create_access_token(identity=usermail)
            ActiveTokens(usermail, access_token).save_issued_token()
            return jsonify({'Message': 'Login successful',
+           'Admin': logging_in_user.is_admin,
                             'Token': access_token}), 200
 
     return Response(json.dumps({'Message': 
@@ -180,7 +182,7 @@ def password_reset():
     """Endpoint for a to reset their password"""
     usermail = request.json.get('email')
     password = request.json.get('password')
-    confirm_password = request.json.get("confirm password")
+    confirm_password = request.json.get("confirm_password")
 
     token = request.args.get('token')
     if not usermail or not validate_email(usermail):
@@ -213,7 +215,7 @@ def password_reset():
                     content_type='application/json'), 401
         else:
             # reset_url = os.getenv('front_end_url') + 'resetpassword'
-            reset_url = 'SAMPLE'
+            reset_url = 'http://localhost:3000/resetpassword'
             token = generate_reset_password_token(usermail)
             send_email(usermail, token, reset_url)
             return Response(json.dumps({'Message': 'A password reset link has been sent to your email'}),

@@ -32,7 +32,6 @@ class UsersTable(db.Model):
     def retrieve_all(self):
         return UsersTable.query.all()
 
-   
     def retrieve_user_by_email(usermail):
         return UsersTable.query.filter_by(usermail=usermail).first()
 
@@ -52,7 +51,7 @@ class UsersTable(db.Model):
     @property
     def serialize(self):
         return {
-            "User ID": self.user_id,
+            "UserID": self.user_id,
             "Name": self.username,
             "Status": self.is_admin,
             "Email":self.usermail
@@ -93,9 +92,9 @@ class BooksTable(db.Model):
     @property
     def serialize(self):
         return {
-            "Book ID": self.book_id,
+            "ID": self.book_id,
             "Title": self.book_title,
-            "Serial Number":self.serial_number,
+            "Serial":self.serial_number,
             "Author": self.book_author,
             "Publication": self.publication_year,
             "Status": self.is_not_borrowed
@@ -138,11 +137,11 @@ class BookHistory(db.Model):
         return{
 
            
-            "User Email": self.bh_usermail,
-            "Book ID": self.bh_book_id,
-            "Date Borrowed": self.date_borrowed,
-            "Due Date": self.return_date,
-            "Book Returned": self.book_returned
+            "Usermail": self.bh_usermail,
+            "ID": self.bh_book_id,
+            "Borrowed": self.date_borrowed,
+            "Due": self.return_date,
+            "Returned": self.book_returned
         }
 
 
@@ -193,7 +192,7 @@ class ActiveTokens(db.Model):
         db.session.commit()
 
     def token_is_expired(self):
-        return (datetime.now() - self.token_time_created) > timedelta(minutes=30)
+        return (datetime.now() - self.token_time_created) > timedelta(minutes=60)
 
     @staticmethod
     def find_user_with_issued_token(user_usermail):
