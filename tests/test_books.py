@@ -42,7 +42,7 @@ class EndpointTests(unittest.TestCase):
             '/api/v2/auth/login', data=json.dumps(self.login),headers={'content-type':'application/json'})
         # Get admin access token
         self.assertEqual(200, login_response.status_code)
-        access_token = json.loads(login_response.data)['access_token']
+        access_token = json.loads(login_response.data)['Token']
 
         return access_token
 
@@ -56,7 +56,7 @@ class EndpointTests(unittest.TestCase):
             '/api/v2/auth/login', data=json.dumps(self.user), headers={'content-type':'application/json'})
         self.assertEqual(login_response.status_code, 200)
         # Get user access token
-        access_token = json.loads(login_response.data)['access_token']
+        access_token = json.loads(login_response.data)['Token']
         return access_token
 
     def test_admin_adding_book(self):
@@ -184,13 +184,7 @@ class EndpointTests(unittest.TestCase):
         'pub_year': '2015'}), headers=headers)
         self.assertEqual(response.status_code, 404)
         self.assertIn("This book does not exist in the library.", json.loads(response.data)['message'])
-        # Logout admin to blacklist a token:
-        response=self.test_client.post('/api/v2/auth/logout', headers=headers)
-       # Try to update a book with blacklisted token:
-        response=self.test_client.put('/api/v2/books/1', data=json.dumps({'name': 'Beginning Javascript 2', 'author': 'M Madam', \
-        'pub_year': '2015'}), headers=headers)
-        self.assertEqual(response.status_code, 401)
-        self.assertEqual("This token is blacklisted", json.loads(response.data)['message'])
+
 
     def test_borrow_book_without_valid_token(self):
         self.book_1.save_book_to_db()
