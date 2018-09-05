@@ -75,10 +75,16 @@ def update_book_details(bookId):
              status=200, content_type='application/json')
 
         elif request.method == 'DELETE':
-            book_to_update.delete_book()
-            return Response(json.dumps({'message': 'You have deleted this book {}'\
-            .format(book_to_update.book_title)}),
+            book_to_update_available = book_to_update.is_not_borrowed
+            if not book_to_update_available:
+                return Response(json.dumps({'message': 'You cannot delete this book {}.It is borrowed'\
+                .format(book_to_update.book_title)}),
              status=200,content_type='application/json')
+            else:
+                book_to_update.delete_book()
+                return Response(json.dumps({'message': 'You have deleted this book {}'\
+                .format(book_to_update.book_title)}),
+                status=200,content_type='application/json')
     except ValueError:
         return Response(json.dumps({'message': 'Invalid book ID'}), status=404, 
         content_type='application/json')
