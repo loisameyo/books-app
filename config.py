@@ -7,7 +7,7 @@ class Config(object):
     ADMIN = "meyoodi18@gmail.com"
     SECRET = os.getenv('SECRET_KEY')
     SECURITY_PASSWORD_SALT = os.getenv('SECURITY_PASSWORD_SALT')
-    JWT_ACCESS_TOKEN_EXPIRES = datetime.timedelta(minutes=1)
+    JWT_ACCESS_TOKEN_EXPIRES = datetime.timedelta(minutes=60)
     # mail configuration
     MAIL_DEFAULT_SENDER = os.environ.get('MAIL_USER')
     MAIL_SERVER = 'smtp.gmail.com'
@@ -26,6 +26,7 @@ class DevelopmentConfig(Config):
 class TestingConfig(Config):
     """Configuration setting at testing stage"""
     SQLALCHEMY_DATABASE_URI = "postgresql://localhost/test_db"
+    TESTING=True
     DEBUG = True
 
 class ProductionConfig(Config):
