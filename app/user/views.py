@@ -17,16 +17,17 @@ def borrow_book(book_id):
     try:
         book_id = int(book_id)
     except ValueError:
-        return Response(json.dumps({'message': 'Enter a valid book ID'}))
+        return Response(json.dumps({'message': 'Enter a valid book ID'}), status=404, content_type='application/json')
     
     usermail = request.json.get('email')
-    if usermail == None or usermail == "" or usermail.strip() =="":
-            return Response(json.dumps({'message': 'Invalid. Please enter a vaild email'}))
+    if usermail is None or usermail == "" or usermail.strip() =="":
+            return Response(json.dumps({'message': 'Invalid. Please enter a vaild email'}), status=400, content_type='application/json')
     else:
         jti = get_raw_jwt()['jti']
         logged_in_user = get_jwt_identity()
         if logged_in_user != usermail or RevokedTokens.is_jti_blacklisted(jti):
-            return Response(json.dumps({'message': 'Unknown user. Please register and login to receive a token'}))
+            return Response(json.dumps({'message': 'Unknown user. Please register and login to receive a token'}),\
+             status=401, content_type='application/json')
         else:
             one_book = BooksTable.query.filter_by(book_id=book_id).first()
             # book_details = BooksTable.retrieve_book_by_id(book_id)
@@ -37,9 +38,9 @@ def borrow_book(book_id):
                 """processing the borrow request"""
                 if request.method == "POST":
                     has_borrowed = BookHistory.query.filter_by(bh_book_id=book_id, bh_usermail=get_jwt_identity())
-                    if one_book.is_not_borrowed == False:
+                    if one_book.is_not_borrowed is False:
                         if has_borrowed:
-                            return Response(json.dumps({'message': "You have borrowed this book"}),
+                            return Response(json.dumps({'message': "You have already borrowed this book"}),
                              status=403, content_type='apllication/json')
                         return Response(json.dumps({'message': 
                             'This book has already been borrowed by another user'}), status = 404, 
@@ -58,7 +59,7 @@ def borrow_book(book_id):
 
                 elif request.method == "PUT":
                     book_to_return = BookHistory.retrieve_book_by_id_and_usermail(book_id, usermail)
-                    if one_book.is_not_borrowed == True:
+                    if one_book.is_not_borrowed is True:
                         return Response(json.dumps({'Message': 'This book has not been borrowed {}'
                         .format(one_book.book_title)}), status = 404, content_type='application/json')
                     
