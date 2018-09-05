@@ -4,7 +4,7 @@
 
 # Hello Books
 
-Hello Books is a simple API that implements CRUD functionalities. Two knids of users can use this API. A normal user (non-admin) can register to be a user, login, view all books available, borrow a book and logout. The admin, in addition to what the normal user can do is also able to create a new book, edit or delete an existing book. 
+Hello Books is a simple API that implements CRUD functionalities. Two kinds of users can use this API. A normal user (non-admin) can register to be a user, login, view all books available, borrow a book and logout. The admin, in addition to what the normal user can do is also able to create a new book, edit or delete an existing book. 
 
 # Functionalities
 
