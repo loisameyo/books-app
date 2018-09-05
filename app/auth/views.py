@@ -41,19 +41,23 @@ def register_new_user():
         name = request.json.get('name')
         email = request.json.get('email')
         password = request.json.get('password')
-        confirm_password = request.json.get("confirm password")
+        confirm_password = request.json.get("confirm_password")
+
+        print(password)
+        print(confirm_password)
+
         if confirm_password != password:
-            return Response(json.dumps({'message': 'Passwords did not match'}),
-            content_type='application/json')
+            return Response(json.dumps({'message': 'Passwords do not match'}),
+            content_type='application/json'), 400
         if not name or name.strip() == "":
-            return Response(json.dumps({'message': 'Invalid Entry!Enter a name'}),
-            content_type='application/json')
+            return Response(json.dumps({'message': 'Invalid Entry! Enter a name'}),
+            content_type='application/json'), 400
         if not email or not validate_email(email):
-            return Response(json.dumps({'message': 'Invalid Entry!Enter a valid email address'}),
-            content_type='application/json')
+            return Response(json.dumps({'message': 'Invalid Entry! Enter a valid email address'}),
+            content_type='application/json'), 400
         if not password or not validate_password(password):
             return Response(json.dumps({'message': 'Invalid Entry! Enter a valid password'}),
-            content_type='application/json')
+            content_type='application/json'), 400
 
     
     """Ensure this user is not already registered"""
@@ -137,7 +141,7 @@ def login():
         access_token = create_access_token(identity=usermail)
         logged_in_user.access_token = access_token
         logged_in_user.save_issued_token()
-        return Response(json.dumps({"Token":logged_in_user.access_token,
+        return Response(json.dumps({"Token":logged_in_user.access_token,'Admin': logging_in_user.is_admin,
          "Message":"Token expired.Use this new token"}),status=200, content_type='application/json')
     
     else:
