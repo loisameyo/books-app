@@ -219,7 +219,7 @@ def password_reset():
                     content_type='application/json'), 401
         else:
             # reset_url = os.getenv('front_end_url') + 'resetpassword'
-            reset_url = 'http://localhost:3000/resetpassword'
+            reset_url = 'https://boiling-shelf-58690.herokuapp.com/resetpassword'
             token = generate_reset_password_token(usermail)
             send_email(usermail, token, reset_url)
             return Response(json.dumps({'Message': 'A password reset link has been sent to your email'}),
